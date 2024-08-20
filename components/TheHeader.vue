@@ -1,7 +1,7 @@
 <template>
     <header className="fixed z-10 flex justify-between w-full p-4 h-85px top-0 mx-auto bg-slate-200">
         <NuxtLink href="/">
-            <h1 className="text-2xl">odet_nadezhdu</h1>
+            <h1 className="text-2xl">Каталог</h1>
         </NuxtLink>
         <NuxtLink href="/cart" class="relative cursor-pointer">
             <div class="absolute w-6 h-6 rounded-full text-center bg-red-600 text-white -right-4 -top-2">{{data.countCartItems}}</div>

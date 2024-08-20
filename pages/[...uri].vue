@@ -30,7 +30,7 @@
         <button
             @click="() => {addToCart(data)}"
             :class="`${alreadyInCart(data) ? 'bg-blue-300 pointer-events-none' : 'bg-blue-600'}`"
-            class="w-full block bg-blue-600 text-white text-lg p-2 rounded-md mt-4"
+            class="w-full block text-white text-lg p-2 rounded-md mt-4"
             >{{ alreadyInCart(data) ? 'Уже в корзине' : 'Добавить в корзину' }}
         </button>
         <div class="mt-4 pb-8 space-y-2" v-html="data.productData.productDescription"></div>

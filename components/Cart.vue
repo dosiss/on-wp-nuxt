@@ -1,5 +1,5 @@
 <template>
-    <div class="pt-20 px-4">
+    <div class="bg-grey-100 pt-20 px-4">
         <div class="text-2xl font-semibold">Ваша корзина:</div>
         <div v-for="item in data.getCartItems" :key="item.id" class="flex items-center my-4 pb-4 border-b border-gray-300">
             <img 

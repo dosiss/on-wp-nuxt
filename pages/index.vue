@@ -104,7 +104,7 @@ const childCategories = computed(() => {
 <template>
   <div>
     <TheHeader></TheHeader>
-    <div class="px-4 pt-20">
+    <div class="bg-grey-100 px-4 pt-20">
       <div class="flex justify-between align-center">
         <CategoriesDropdown :parentCategories="parentCategories" :childCategories="childCategories" />
         <SortDropdown v-model="sortBy" :options="sortOptions" class="" />

@@ -2,7 +2,7 @@
     <div>
       <TheHeader></TheHeader>
       
-      <div class="container mx-auto px-4 pt-20">
+      <div class="bg-grey-100 container mx-auto px-4 pt-20">
         <div class="flex justify-between align-center">
             <h1 class="text-2xl font-semibold mb-4">{{ categoryName }}</h1>
             <SortDropdown v-model="sortBy" :options="sortOptions" class="" />
