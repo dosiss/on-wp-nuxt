@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { MainButton, useWebAppPopup } from 'vue-tg'
+import { MainButton, useWebAppPopup, useWebAppTheme } from 'vue-tg'
 
 const { showAlert } = useWebAppPopup()
+const { setBackgroundColor } = useWebAppTheme()
 </script>
 
 <template>
-  <MainButton text="Open alert" @click="() => showAlert('Hello!')" />
+  <MainButton text="Заказать" @click="() => showAlert('Спасибо за ваш заказ! Мы свяжемся с вами в Телеграм.')" />
 </template>

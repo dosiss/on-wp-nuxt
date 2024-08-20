@@ -102,9 +102,9 @@ const childCategories = computed(() => {
 </script>
 
 <template>
-  <div>
+  <div class="bg-grey-100">
     <TheHeader></TheHeader>
-    <div class="bg-grey-100 px-4 pt-20">
+    <div class="px-4 pt-20">
       <div class="flex justify-between align-center">
         <CategoriesDropdown :parentCategories="parentCategories" :childCategories="childCategories" />
         <SortDropdown v-model="sortBy" :options="sortOptions" class="" />
