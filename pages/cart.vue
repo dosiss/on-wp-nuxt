@@ -21,13 +21,13 @@ const { showAlert } = useWebAppPopup()
 import { useRoute } from 'vue-router';
 import Cart from '~/components/Cart.vue';
 import { useCartStore } from '../store/cart';
-import { MainButton, useWebAppPopup, useWebAppUser } from 'vue-tg';
+import { MainButton, useWebAppPopup, useWebApp } from 'vue-tg';
 
 // Get the route and cart store
 const route = useRoute();
 const data = useCartStore();
 const { showAlert } = useWebAppPopup();
-const { user } = useWebAppUser();
+const { user } = useWebApp();
 
 function sendOrder() {
   // Prepare cart data
