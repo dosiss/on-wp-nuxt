@@ -23,30 +23,38 @@ import Cart from '~/components/Cart.vue';
 import { useCartStore } from '../store/cart';
 import { MainButton, useWebAppPopup, useWebApp } from 'vue-tg';
 
-// Get the route and cart store
+// Import required utilities
 const route = useRoute();
 const data = useCartStore();
 const { showAlert } = useWebAppPopup();
-const { user } = useWebApp();
+const { WebApp, initDataUnsafe } = useWebApp(); // useWebApp function to access WebApp and initDataUnsafe
 
 function sendOrder() {
-  // Prepare cart data
-  const cartItems = data.getCartItems.map(item => ({
-    title: item.title,
-    price: item.productData.productPriceReduced ?? item.productData.productPrice
-  }));
+  // Extract user information from initDataUnsafe
+  const userId = initDataUnsafe.user?.id;
 
-  // Prepare data to send to Telegram bot
-  const orderData = {
-    userId: user.id,   // Telegram user ID
-    cart: cartItems
-  };
+  // Ensure the WebApp is available
+  if (WebApp) {
+    // Prepare cart data
+    const cartItems = data.getCartItems.map(item => ({
+      title: item.title,
+      price: item.productData.productPriceReduced ?? item.productData.productPrice,
+    }));
 
-  // Send data to the bot using Telegram WebApp API
-  Telegram.WebApp.sendData(JSON.stringify(orderData));
+    // Prepare data to send to Telegram bot
+    const orderData = {
+      userId: userId,   // Telegram user ID
+      cart: cartItems,
+    };
 
-  // Show confirmation alert
-  showAlert('Спасибо за ваш заказ! Мы свяжемся с вами в Телеграм.');
+    // Send data to the bot using Telegram WebApp API
+    WebApp.sendData(JSON.stringify(orderData));
+
+    // Show confirmation alert
+    showAlert('Спасибо за ваш заказ! Мы свяжемся с вами в Телеграм.');
+  } else {
+    console.error('Telegram WebApp is not available');
+  }
 }
 </script>
 
