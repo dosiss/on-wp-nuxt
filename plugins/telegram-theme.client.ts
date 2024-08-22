@@ -1,6 +1,6 @@
 import { defineNuxtPlugin } from '#app';
 import { useWebAppTheme } from 'vue-tg';
-i// mport { useWebApp } from 'vue-tg';
+// mport { useWebApp } from 'vue-tg';
 
 export default defineNuxtPlugin((nuxtApp) => {
   const { setBackgroundColor } = useWebAppTheme();
