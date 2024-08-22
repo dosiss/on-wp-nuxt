@@ -27,14 +27,14 @@ import { MainButton, useWebAppPopup, useWebApp } from 'vue-tg';
 const route = useRoute();
 const data = useCartStore();
 const { showAlert } = useWebAppPopup();
-const { WebApp, initDataUnsafe } = useWebApp(); // useWebApp function to access WebApp and initDataUnsafe
+const { initDataUnsafe } = useWebApp(); // useWebApp function to access WebApp and initDataUnsafe
 
 function sendOrder() {
   // Extract user information from initDataUnsafe
   const userId = initDataUnsafe.user?.id;
 
   // Ensure the WebApp is available
-  if (WebApp) {
+
     // Prepare cart data
     const cartItems = data.getCartItems.map(item => ({
       title: item.title,
@@ -52,9 +52,6 @@ function sendOrder() {
 
     // Show confirmation alert
     showAlert('Спасибо за ваш заказ! Мы свяжемся с вами в Телеграм.');
-  } else {
-    console.error('Telegram WebApp is not available');
-  }
 }
 </script>
 
