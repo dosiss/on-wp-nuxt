@@ -48,7 +48,7 @@ function sendOrder() {
     };
 
     // Send data to the bot using Telegram WebApp API
-    WebApp.sendData(JSON.stringify(orderData));
+    window.Telegram.WebApp.sendData(JSON.stringify(orderData));
 
     // Show confirmation alert
     showAlert('Спасибо за ваш заказ! Мы свяжемся с вами в Телеграм.');
