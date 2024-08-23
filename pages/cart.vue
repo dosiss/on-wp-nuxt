@@ -31,7 +31,7 @@ const { initDataUnsafe } = useWebApp(); // useWebApp function to access WebApp a
 
 function sendOrder() {
   // Extract user information from initDataUnsafe
-  const userId = initDataUnsafe.user?.id;
+  const userId = initDataUnsafe.user?.username;
 
   // Ensure the WebApp is available
 
