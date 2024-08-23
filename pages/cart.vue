@@ -43,7 +43,7 @@ function sendOrder() {
 
     // Prepare data to send to Telegram bot
     const orderData = {
-      userId: userId,   // Telegram user ID
+      userId:`@${userId}`,   // Telegram user ID
       cart: cartItems,
     };
 
