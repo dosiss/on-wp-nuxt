@@ -31,7 +31,9 @@ const { initDataUnsafe } = useWebApp(); // useWebApp function to access WebApp a
 
 function sendOrder() {
   // Extract user information from initDataUnsafe
-  const userId = initDataUnsafe.user?.username;
+  const userId = initDataUnsafe.user?.id;
+ // const userId = initDataUnsafe.user?.username;
+
 
   // Ensure the WebApp is available
 
@@ -43,7 +45,8 @@ function sendOrder() {
 
     // Prepare data to send to Telegram bot
     const orderData = {
-      userId:`@${userId}`,   // Telegram user ID
+      userId: userId,
+   //   userId:`@${userId}`,   // Telegram user ID
       cart: cartItems,
     };
 
