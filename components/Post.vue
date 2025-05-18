@@ -1,5 +1,6 @@
 <template>
-    <NuxtLink :to='post.uri'>
+  <div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <NuxtLink :to="post.uri" @click="saveScrollPosition">
         <div class="flex
         items-start
         border
@@ -27,9 +28,21 @@
             </div>
         </div>
     </NuxtLink>
+    </div>
  </template>
  
-<script setup lang="ts">
-const props = defineProps<{ post: any }>();
+<script setup>
+const props = defineProps({
+  post: {
+    type: Object,
+    required: true
+  }
+});
 
+// Function to save scroll position when clicking on a product
+const saveScrollPosition = () => {
+  const scrollPosition = window.scrollY || window.pageYOffset;
+  console.log('Saving scroll position from Post component:', scrollPosition);
+  sessionStorage.setItem('lastScrollPosition', scrollPosition.toString());
+};
 </script>

@@ -1,7 +1,7 @@
-<script setup lang="ts">
+<script setup>
 import CategoriesDropdown from '~/components/CategoriesDropdown.vue';
 import SortDropdown from '~/components/SortDropdown.vue';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 
 const config = useRuntimeConfig();
 const sortBy = ref('date'); // Default sorting by date
@@ -98,7 +98,26 @@ const childCategories = computed(() => {
   return data.value.categories.filter(category => category.parent);
 });
 
-
+// Restore scroll position when returning to homepage
+onMounted(() => {
+  // Check if there's a saved scroll position
+  const savedPosition = sessionStorage.getItem('lastScrollPosition');
+  console.log('Retrieved saved position:', savedPosition);
+  
+  if (savedPosition) {
+    // Restore the scroll position
+    setTimeout(() => {
+      const position = parseInt(savedPosition);
+      console.log('Scrolling to position:', position);
+      window.scrollTo({
+        top: position,
+        behavior: 'auto'
+      });
+      // Clear the saved position after restoring
+      sessionStorage.removeItem('lastScrollPosition');
+    }, 500); // Small delay to ensure the page has rendered
+  }
+});
 </script>
 
 <template>
