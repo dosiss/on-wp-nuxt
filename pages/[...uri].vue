@@ -5,7 +5,7 @@
         <!-- Gallery Section -->
         <div class="mt-8">
          <Swiper
-            v-if="data.productData.productGallery && data.productData.productGallery.edges && data.productData.productGallery.edges.length > 0"
+            v-if="data.productData?.productGallery?.edges?.length > 0"
             :modules="[SwiperPagination]"
             :spaceBetween="30"
             :pagination="{
