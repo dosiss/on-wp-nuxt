@@ -5,6 +5,7 @@
         <!-- Gallery Section -->
         <div class="mt-8">
          <Swiper
+            v-if="data.productData.productGallery && data.productData.productGallery.edges && data.productData.productGallery.edges.length > 0"
             :modules="[SwiperPagination]"
             :spaceBetween="30"
             :pagination="{
@@ -12,7 +13,6 @@
             }"
             :slides-per-view="1"
             :loop="true"
-     
          >
          <SwiperSlide v-for="edge in data.productData.productGallery.edges" :key="edge.node.id">
             <img 
@@ -22,6 +22,13 @@
             />
           </SwiperSlide>
         </Swiper>
+        <div v-else class="w-full">
+          <img 
+            src="/placeholder-image.png" 
+            alt="Product Image Placeholder"
+            class="w-full h-auto rounded-lg border border-gray-200"
+          />
+        </div>
         </div>
         <h1 class="text-2xl mt-4 mb-2">{{ data.title }}</h1>
         <!-- <div class="text-2xl mt-4">{{ new Date(data.date).toLocaleDateString() }}</div> -->
