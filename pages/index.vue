@@ -11,7 +11,7 @@ const { data } = await useFetch(config.public.wordpressUrl, {
   query: {
     query: `
       query NewQuery {
-        posts (first:100) {
+        posts (first:300) {
           nodes {
             title
             date
@@ -49,7 +49,7 @@ const { data } = await useFetch(config.public.wordpressUrl, {
             }
           }
         }
-        categories (first:50) {
+        categories (first:100) {
           nodes {
             name
             slug
