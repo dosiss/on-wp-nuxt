@@ -11,7 +11,7 @@ const { data } = await useFetch(config.public.wordpressUrl, {
   query: {
     query: `
       query NewQuery {
-        posts (first:300) {
+        posts (first:80) {
           nodes {
             title
             date
