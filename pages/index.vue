@@ -1,7 +1,7 @@
 <script setup>
 import CategoriesDropdown from '~/components/CategoriesDropdown.vue';
 import SortDropdown from '~/components/SortDropdown.vue';
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 
 const config = useRuntimeConfig();
 const sortBy = ref('date'); // Default sorting by date
@@ -11,6 +11,7 @@ const currentPage = ref(1);
 const postsPerPage = 20;
 const hasMorePosts = ref(true);
 const endCursor = ref(''); // Store the cursor for pagination
+const isLoadingMore = ref(false); // Additional flag to prevent duplicate requests
 
 const debug = ref({
   initialDataLoaded: false,
@@ -20,8 +21,8 @@ const debug = ref({
 
 // Initial data fetch with cursor-based pagination
 const { data, pending, error } = await useFetch(config.public.wordpressUrl, {
-  method: 'get',
-  query: {
+  method: 'post', // Changed to POST for more reliable GraphQL requests
+  body: {
     query: `
       query NewQuery {
         posts (first:${postsPerPage}) {
@@ -122,16 +123,25 @@ watch(data, (newData) => {
 
 // Function to load more posts with cursor-based pagination
 const loadMorePosts = async () => {
-  if (loading.value || !hasMorePosts.value || !endCursor.value) return;
+  if (loading.value || isLoadingMore.value || !hasMorePosts.value || !endCursor.value) {
+    console.log('Skipping loadMorePosts:', { 
+      loading: loading.value,
+      isLoadingMore: isLoadingMore.value,
+      hasMorePosts: hasMorePosts.value, 
+      endCursor: endCursor.value 
+    });
+    return;
+  }
   
   loading.value = true;
+  isLoadingMore.value = true;
   console.log('Loading more posts, page:', currentPage.value + 1, 'with cursor:', endCursor.value);
   
   try {
     // Use cursor-based pagination
     const { data: moreData } = await useFetch(config.public.wordpressUrl, {
-      method: 'get',
-      query: {
+      method: 'post', // Changed to POST for more reliable GraphQL requests
+      body: {
         query: `
           query LoadMorePosts {
             posts (first:${postsPerPage}, after: "${endCursor.value}") {
@@ -179,7 +189,7 @@ const loadMorePosts = async () => {
           }
         `
       },
-      key: `more-posts-${currentPage.value + 1}` // Unique key for each request
+      key: `more-posts-${Date.now()}` // Use timestamp for truly unique keys
     });
     
     console.log('More data received:', moreData.value);
@@ -189,6 +199,8 @@ const loadMorePosts = async () => {
       console.log('New posts loaded:', newPosts.length);
       
       if (newPosts.length > 0) {
+        // Use nextTick to ensure UI updates properly
+        await nextTick();
         allPosts.value = [...allPosts.value, ...newPosts];
         currentPage.value++;
         debug.value.morePostsLoaded = true;
@@ -215,6 +227,10 @@ const loadMorePosts = async () => {
     debug.value.error = error.message;
   } finally {
     loading.value = false;
+    isLoadingMore.value = false;
+    
+    // Force a re-render
+    await nextTick();
   }
 };
 
@@ -229,9 +245,13 @@ const handleScroll = () => {
   const distanceFromBottom = documentHeight - (scrollY + windowHeight);
   
   // Load more when user is 200px from the bottom
-  if (distanceFromBottom < 200 && !loading.value && hasMorePosts.value) {
+  if (distanceFromBottom < 200 && !loading.value && !isLoadingMore.value && hasMorePosts.value) {
     console.log('Scroll trigger activated, distance from bottom:', distanceFromBottom);
-    loadMorePosts();
+    
+    // Use setTimeout to ensure the scroll event has completed
+    setTimeout(() => {
+      loadMorePosts();
+    }, 50);
   }
 };
 
