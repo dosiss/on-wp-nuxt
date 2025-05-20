@@ -8,7 +8,7 @@ const sortBy = ref('date'); // Default sorting by date
 const loading = ref(false);
 const allPosts = ref([]);
 const currentPage = ref(1);
-const postsPerPage = 20;
+const postsPerPage = 50;
 const hasMorePosts = ref(true);
 const endCursor = ref(''); // Store the cursor for pagination
 const isLoadingMore = ref(false); // Additional flag to prevent duplicate requests
@@ -21,7 +21,7 @@ const debug = ref({
 
 // Initial data fetch with cursor-based pagination
 const { data, pending, error } = await useFetch(config.public.wordpressUrl, {
-  method: 'post', // Changed to POST for more reliable GraphQL requests
+  method: 'post',
   body: {
     query: `
       query NewQuery {
@@ -90,11 +90,20 @@ const { data, pending, error } = await useFetch(config.public.wordpressUrl, {
         debug.value.initialDataLoaded = true;
         console.log('Initial posts loaded:', data.data.posts.nodes.length);
         
-        // Store the end cursor for pagination
+        // Store the end cursor for pagination - add more detailed logging
+        console.log('PageInfo from response:', data?.data?.posts?.pageInfo);
+        
         if (data?.data?.posts?.pageInfo?.endCursor) {
           endCursor.value = data.data.posts.pageInfo.endCursor;
           hasMorePosts.value = data.data.posts.pageInfo.hasNextPage;
-          console.log('End cursor:', endCursor.value, 'Has next page:', hasMorePosts.value);
+          console.log('End cursor set to:', endCursor.value, 'Has next page:', hasMorePosts.value);
+        } else {
+          console.error('No endCursor found in pageInfo:', data?.data?.posts?.pageInfo);
+          debug.value.error = 'No endCursor found in pageInfo';
+          
+          // Set a default cursor if none is found (this is a workaround)
+          endCursor.value = "YXJyYXljb25uZWN0aW9uOjEwNzk="; 
+          console.log('Using default cursor as fallback:', endCursor.value);
         }
       } else {
         console.error('No posts found in initial data');
@@ -140,7 +149,7 @@ const loadMorePosts = async () => {
   try {
     // Use cursor-based pagination
     const { data: moreData } = await useFetch(config.public.wordpressUrl, {
-      method: 'post', // Changed to POST for more reliable GraphQL requests
+      method: 'post',
       body: {
         query: `
           query LoadMorePosts {
@@ -234,40 +243,9 @@ const loadMorePosts = async () => {
   }
 };
 
-// Handle scroll event for infinite scrolling - improved for mobile
-const handleScroll = () => {
-  // Get viewport height and scroll position
-  const windowHeight = window.innerHeight || document.documentElement.clientHeight;
-  const scrollY = window.scrollY || window.pageYOffset;
-  const documentHeight = document.documentElement.scrollHeight;
-  
-  // Calculate distance from bottom (more reliable for mobile)
-  const distanceFromBottom = documentHeight - (scrollY + windowHeight);
-  
-  // Load more when user is 200px from the bottom
-  if (distanceFromBottom < 200 && !loading.value && !isLoadingMore.value && hasMorePosts.value) {
-    console.log('Scroll trigger activated, distance from bottom:', distanceFromBottom);
-    
-    // Use setTimeout to ensure the scroll event has completed
-    setTimeout(() => {
-      loadMorePosts();
-    }, 50);
-  }
-};
-
-// Set up scroll listener with both scroll and touch events for mobile
+// Set up initial data on mount
 onMounted(() => {
-  console.log('Component mounted, setting up scroll listeners');
-  
-  // Add scroll event listener
-  window.addEventListener('scroll', handleScroll, { passive: true });
-  
-  // Add touch events for mobile devices
-  window.addEventListener('touchmove', handleScroll, { passive: true });
-  window.addEventListener('touchend', () => {
-    // Small delay to ensure accurate scroll position after touch
-    setTimeout(handleScroll, 100);
-  }, { passive: true });
+  console.log('Component mounted');
   
   // Ensure allPosts is populated from data on client-side
   if (data.value?.posts && data.value.posts.length > 0 && allPosts.value.length === 0) {
@@ -289,25 +267,11 @@ onMounted(() => {
       sessionStorage.removeItem('lastScrollPosition');
     }, 500); // Small delay to ensure the page has rendered
   }
-  
-  // Initial check for small content that doesn't fill the viewport
-  setTimeout(() => {
-    const windowHeight = window.innerHeight || document.documentElement.clientHeight;
-    const documentHeight = document.documentElement.scrollHeight;
-    
-    if (documentHeight <= windowHeight && hasMorePosts.value && !loading.value) {
-      console.log('Content doesn\'t fill viewport, loading more posts');
-      loadMorePosts();
-    }
-  }, 500);
 });
 
 // Clean up scroll listener
 onUnmounted(() => {
-  console.log('Component unmounted, removing scroll listeners');
-  window.removeEventListener('scroll', handleScroll);
-  window.removeEventListener('touchmove', handleScroll);
-  window.removeEventListener('touchend', handleScroll);
+  console.log('Component unmounted');
 });
 
 // Save scroll position when clicking on a product
@@ -398,9 +362,22 @@ const childCategories = computed(() => {
         <p class="text-xl">No products found</p>
       </div>
       
-      <!-- Loading indicator for more posts -->
-      <div v-if="loading" class="flex justify-center my-8">
-        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900"></div>
+      <!-- Load More Button -->
+      <div class="flex justify-center my-8">
+        <button 
+          v-if="hasMorePosts && !loading && endCursor" 
+          @click="loadMorePosts" 
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Загрузить еще
+        </button>
+
+        <div v-if="!loading && hasMorePosts && !endCursor" class="text-center text-gray-500 my-8">
+          Выберите категорию вверху страницы чтобы продолжить
+        </div>
+        
+        <!-- Loading indicator -->
+        <div v-if="loading" class="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900"></div>
       </div>
       
       <!-- End of results message -->
