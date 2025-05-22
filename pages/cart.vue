@@ -53,6 +53,7 @@ async function sendOrder() {
       
       const result = await response.json();
       console.log('Email sent result:', result);
+      console.log('Order data sent:', orderData);
     } catch (emailError) {
       console.error('Failed to send email:', emailError);
       // Continue with Telegram data sending even if email fails
