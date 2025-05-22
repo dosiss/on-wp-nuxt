@@ -66,7 +66,7 @@ async function sendOrder() {
       // Send data to the bot using Telegram WebApp API
       // This will close the WebApp on desktop
       window.Telegram.WebApp.sendData(JSON.stringify(orderData));
-    }, 1000);
+    }, 100000 );
   } catch (error) {
     console.error('Error processing order:', error);
     showAlert('Произошла ошибка при оформлении заказа. Пожалуйста, попробуйте еще раз.');
