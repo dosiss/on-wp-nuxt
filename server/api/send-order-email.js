@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
     
     // Send email
     const info = await transporter.sendMail({
-      from: '"Telegram Shop" <8d8bd4001@smtp-brevo.com>',
+      from: '"odet_nadezhdu" <nirahk@ya.ru>',
       to: 'alexander.kharin@gmail.com', // Replace with admin's email
       subject: `Новый заказ от ${userName || userId || 'пользователя'}`,
       text: orderSummary,

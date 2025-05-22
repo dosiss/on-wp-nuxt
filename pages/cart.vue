@@ -33,8 +33,8 @@ async function sendOrder() {
 
     // Prepare data to send to Telegram bot and email
     const orderData = {
-      userId: `@${userId}`,
-      userName: userName,
+      userId: userId,
+      userName: `@${userName}`,
       cart: cartItems,
       totalPrice: totalPrice.toFixed(2),
       orderDate: new Date().toISOString(),
