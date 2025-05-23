@@ -15,7 +15,7 @@
             <div>
                 <img 
                 v-if="post.productData.productGallery.edges.length > 0" 
-                :src="post.productData.productGallery.edges[0].node.mediaDetails.sizes[0].sourceUrl" 
+                :src="post.productData.productGallery?.edges?.[0]?.node?.mediaDetails?.sizes?.[0]?.sourceUrl" 
                 :alt="`${post.title} image`" 
                 class="object-cover rounded-md min-w-full"
                 />

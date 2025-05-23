@@ -67,7 +67,7 @@ const { data, pending, error } = await useFetch(config.public.wordpressUrl, {
             }
           }
         }
-        categories (first:30) {
+        categories (first:40) {
           nodes {
             name
             slug
@@ -314,8 +314,24 @@ function sortPostsByCurrentCriteria(postsToSort) {
   return postsToSort;
 }
 
+const customCategoryOrder = [
+  'mens', 
+  'womens',
+  'tracking',
+  'bikewear',
+  'sailingwear'
+];
+
 const parentCategories = computed(() => {
-  return data.value?.categories?.filter(category => !category.parent) || [];
+  const cats = data.value?.categories?.filter(category => !category.parent) || [];
+  return cats.slice().sort((a, b) => {
+    const aIndex = customCategoryOrder.indexOf(a.slug);
+    const bIndex = customCategoryOrder.indexOf(b.slug);
+    if (aIndex === -1 && bIndex === -1) return 0;
+    if (aIndex === -1) return 1;
+    if (bIndex === -1) return -1;
+    return aIndex - bIndex;
+  });
 });
 
 const childCategories = computed(() => {
