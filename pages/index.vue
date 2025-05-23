@@ -321,16 +321,100 @@ const parentCategories = computed(() => {
 const childCategories = computed(() => {
   return data.value?.categories?.filter(category => category.parent) || [];
 });
+
+// Add this function to your script setup section
+const markPostsFromFrontpage = () => {
+  if (process.client) {
+    // Set a flag indicating the user is navigating from the frontpage
+    sessionStorage.setItem('fromFrontpage', 'true');
+    // Clear any previous referrer
+    sessionStorage.removeItem('referrer');
+  }
+};
+
+// Add this to your onMounted hook
+onMounted(() => {
+  if (process.client) {
+    // Add click handlers to all post links
+    const postLinks = document.querySelectorAll('a[href^="/"]');
+    postLinks.forEach(link => {
+      link.addEventListener('click', markPostsFromFrontpage);
+    });
+  }
+});
+
+// Add this to your onBeforeUnmount hook if you have one
+onBeforeUnmount(() => {
+  if (process.client) {
+    // Clean up event listeners
+    const postLinks = document.querySelectorAll('a[href^="/"]');
+    postLinks.forEach(link => {
+      link.removeEventListener('click', markPostsFromFrontpage);
+    });
+  }
+});
+
+// Add these variables for scroll behavior
+const isHeaderVisible = ref(true);
+const lastScrollPosition = ref(0);
+const headerControls = ref(null);
+
+// Function to handle scroll events
+const handleScroll = () => {
+  if (!process.client) return;
+  
+  const currentScrollPosition = window.scrollY;
+  
+  // Determine scroll direction and update visibility
+  if (currentScrollPosition < 20) {
+    // Always show at top of page
+    isHeaderVisible.value = true;
+  } else if (currentScrollPosition < lastScrollPosition.value) {
+    // Scrolling up - show header
+    isHeaderVisible.value = true;
+  } else {
+    // Scrolling down - hide header
+    isHeaderVisible.value = false;
+  }
+  
+  // Update last position
+  lastScrollPosition.value = currentScrollPosition;
+};
+
+// Add scroll event listener
+onMounted(() => {
+  if (process.client) {
+    // Add scroll event listener
+    window.addEventListener('scroll', handleScroll, { passive: true });
+  }
+});
+
+// Clean up event listener
+onUnmounted(() => {
+  if (process.client) {
+    window.removeEventListener('scroll', handleScroll);
+  }
+});
 </script>
 
 <template>
   <div class="bg-grey-100">
     <TheHeader></TheHeader>
     <div class="px-4 pt-20">
-      <div class="flex justify-between align-center">
+      <div 
+        class="flex justify-between align-center transition-all duration-300 fixed top-13 left-0 right-0 z-10 p-4 bg-white"
+        :class="{ 
+          'opacity-100 translate-y-0': isHeaderVisible, 
+          'opacity-0 -translate-y-full': !isHeaderVisible 
+        }"
+        ref="headerControls"
+      >
         <CategoriesDropdown :parentCategories="parentCategories" :childCategories="childCategories" />
         <SortDropdown v-model="sortBy" :options="sortOptions" class="" />
       </div>
+      
+      <!-- Add a spacer div to prevent content from jumping when header is fixed -->
+      <div class="h-12 mb-4"></div>
       
       <!-- Debug info (remove in production) -->
       <div v-if="debug.error" class="bg-red-100 p-4 my-4 rounded">

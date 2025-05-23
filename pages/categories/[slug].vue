@@ -8,16 +8,22 @@
             <SortDropdown v-model="sortBy" :options="sortOptions" class="" />
         </div>
         <div class="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <Post v-for="post in sortedPosts" :key="post.uri" :post="post" />
+          <!-- Add click handler to save category path as referrer -->
+          <Post 
+            v-for="post in sortedPosts" 
+            :key="post.uri" 
+            :post="post" 
+            @click="saveReferrer"
+          />
         </div>
       </div>
     </div>
   </template>
   
-  <script setup lang="ts">
+  <script setup>
   import { useRoute } from 'vue-router';
   import { useRuntimeConfig } from '#app';
-  import { ref, computed } from 'vue';
+  import { ref, computed, onMounted } from 'vue';
   import SortDropdown from '~/components/SortDropdown.vue';
 
   
@@ -26,13 +32,32 @@
   const slug = route.params.slug;
   const sortBy = ref('date'); // Default sorting by date
 
+  // Function to save current category path as referrer
+  const saveReferrer = () => {
+    if (process.client) {
+      sessionStorage.setItem('referrer', route.fullPath);
+      console.log('Saved referrer:', route.fullPath);
+    }
+  };
+  
+  // Save referrer on page load as well
+  // Add this to your onMounted hook
+  onMounted(() => {
+    if (process.client) {
+      // Clear the "from frontpage" flag
+      sessionStorage.removeItem('fromFrontpage');
+      // Set the referrer
+      sessionStorage.setItem('referrer', route.fullPath);
+      console.log('Saved category referrer on mount:', route.fullPath);
+    }
+  });
   
   const { data, error } = await useFetch(config.public.wordpressUrl, {
     method: 'get',
     query: {
       query: `
         query AllProductsByCategory($slug: String!) {
-        posts(where: { categoryName: $slug }, first: 10) {
+        posts(where: { categoryName: $slug }, first: 50) {
             nodes {
             title
             date

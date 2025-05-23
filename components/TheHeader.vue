@@ -1,6 +1,7 @@
 <template>
     <header className="fixed z-10 flex justify-between w-full p-4 h-85px top-0 mx-auto bg-slate-200">
-        <NuxtLink href="/">
+        <!-- Use dynamic link for back navigation -->
+        <NuxtLink :to="backLink">
             <!-- Show back arrow on non-frontpage routes -->
             <div v-if="!isHomePage" class="flex items-center">
                 <svg class="w-6 h-6 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -57,6 +58,33 @@
         return route.path === '/' || route.path === '';
     });
     
+    // Compute the back link based on referrer or default to homepage
+    const backLink = computed(() => {
+        // Only access sessionStorage in browser environment
+        if (process.client) {
+            // Get the stored referrer from sessionStorage
+            const referrer = sessionStorage.getItem('referrer');
+            // Get the stored "from frontpage" flag
+            const fromFrontpage = sessionStorage.getItem('fromFrontpage');
+            
+            // If user came from frontpage, always go back to frontpage
+            if (fromFrontpage === 'true') {
+                return '/';
+            }
+            
+            // If we have a stored category or search referrer and we're on a product page, use it
+            if (referrer && 
+                ((referrer.includes('/categories/') && !route.path.startsWith('/categories/')) || 
+                 (referrer.includes('/search') && !route.path.startsWith('/search'))) &&
+                route.path.startsWith('/')) {
+                return referrer;
+            }
+        }
+        
+        // Default to homepage
+        return '/';
+    });
+    
     // Search functionality
     const showSearch = ref(false);
     const searchQuery = ref('');
@@ -79,9 +107,11 @@
     
     // Function to save scroll position
     const saveScrollPosition = () => {
-        const scrollPosition = window.scrollY || window.pageYOffset;
-        console.log('Saving homepage scroll position:', scrollPosition);
-        sessionStorage.setItem('lastScrollPosition', scrollPosition.toString());
+        if (process.client) {
+            const scrollPosition = window.scrollY || window.pageYOffset;
+            console.log('Saving homepage scroll position:', scrollPosition);
+            sessionStorage.setItem('lastScrollPosition', scrollPosition.toString());
+        }
     }
     
     // Add navigation guards to save scroll position when leaving homepage

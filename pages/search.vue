@@ -16,7 +16,18 @@
       </div>
       
       <div v-else class="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <Post v-for="post in sortedResults" :key="post.uri" :post="post" />
+        <!-- Add click handler to save search path as referrer -->
+        <Post 
+          v-for="post in sortedResults" 
+          :key="post.uri" 
+          :post="post" 
+          @click="saveReferrer"
+        />
+      </div>
+      
+      <!-- Display result count -->
+      <div v-if="searchResults.length > 0" class="text-center mt-4 text-gray-600">
+        Найдено результатов: {{ searchResults.length }}
       </div>
     </div>
   </div>
@@ -25,7 +36,7 @@
 <script setup>
 import { useRoute } from 'vue-router';
 import { useRuntimeConfig } from '#app';
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import SortDropdown from '~/components/SortDropdown.vue';
 
 const route = useRoute();
@@ -34,6 +45,26 @@ const searchQuery = computed(() => route.query.q || '');
 const sortBy = ref('date'); // Default sorting by date
 const loading = ref(true);
 const searchResults = ref([]);
+
+// Function to save current search path as referrer
+const saveReferrer = () => {
+  if (process.client) {
+    sessionStorage.setItem('referrer', route.fullPath);
+    console.log('Saved search referrer:', route.fullPath);
+  }
+};
+
+// Save referrer on page load as well
+// Add this to your onMounted hook
+onMounted(() => {
+  if (process.client) {
+    // Clear the "from frontpage" flag
+    sessionStorage.removeItem('fromFrontpage');
+    // Set the referrer
+    sessionStorage.setItem('referrer', route.fullPath);
+    console.log('Saved search referrer on mount:', route.fullPath);
+  }
+});
 
 const sortOptions = [
   { label: 'Сначала новые', value: 'date' },
@@ -52,8 +83,8 @@ const fetchSearchResults = async (query) => {
   
   try {
     const { data } = await useFetch(config.public.wordpressUrl, {
-      method: 'get',
-      query: {
+      method: 'post', // Changed from 'get' to 'post' for more reliable GraphQL requests
+      body: { // Changed from 'query' to 'body' for POST request
         query: `
           query SearchProducts($searchTerm: String!) {
             posts(where: {search: $searchTerm}, first: 100) {
@@ -91,6 +122,7 @@ const fetchSearchResults = async (query) => {
       }
     });
     
+    console.log('Search results count:', data.value?.data?.posts?.nodes?.length || 0);
     searchResults.value = data.value?.data?.posts?.nodes || [];
   } catch (error) {
     console.error('Error fetching search results:', error);
@@ -102,6 +134,12 @@ const fetchSearchResults = async (query) => {
 
 // Sort the search results
 const sortedResults = computed(() => {
+  if (!searchResults.value || searchResults.value.length === 0) {
+    return [];
+  }
+  
+  console.log('Sorting results, count:', searchResults.value.length);
+  
   if (sortBy.value === 'date') {
     return [...searchResults.value].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   } else if (sortBy.value === 'price') {
@@ -111,7 +149,7 @@ const sortedResults = computed(() => {
       return priceA - priceB;
     });
   }
-  return searchResults.value;
+  return [...searchResults.value]; // Return a copy to avoid mutation issues
 });
 
 // Watch for changes in the search query
