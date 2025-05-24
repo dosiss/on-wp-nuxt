@@ -23,7 +23,7 @@
                     </svg>
                 </button>
                 <!-- Search Input -->
-                <div v-if="showSearch" class="absolute right-0 top-10 w-64 bg-white shadow-lg rounded-lg p-2 z-20">
+                <div v-if="showSearch" class="absolute right-0 top-40 w-64 bg-white shadow-lg rounded-lg p-2 z-20">
                     <input 
                         v-model="searchQuery" 
                         @keyup.enter="performSearch"

@@ -26,6 +26,7 @@ async function sendOrder() {
     const cartItems = data.getCartItems.map(item => ({
       title: item.title,
       price: item.productData.productPriceReduced ?? item.productData.productPrice,
+      url: item.uri || item.slug ? `https://odet-nadezhdu.netlify.app/${item.uri || item.slug}` : ''
     }));
 
     // Calculate total price

@@ -7,8 +7,8 @@ export default defineEventHandler(async (event) => {
     
     // Create a formatted order summary for the email
     const orderItems = cart.map(item => 
-      `${item.title}: ${item.price} руб.`
-    ).join('\n');
+      `${item.title}: ${item.price} руб.${item.url ? '\nURL: ' + item.url : ''}`
+    ).join('\n\n');
     
     const orderSummary = `
       Новый заказ от пользователя: ${userName || 'Неизвестно'} (${userId || 'ID не указан'})
@@ -34,7 +34,8 @@ export default defineEventHandler(async (event) => {
     // Send email
     const info = await transporter.sendMail({
       from: '"odet_nadezhdu" <nirahk@ya.ru>',
-      to: 'alexander.kharin@gmail.com', // Replace with admin's email
+      to: 'maria_shumakova@gmail.com', 
+      cc: 'alexander.kharin@gmail.com',
       subject: `Новый заказ от ${userName || userId || 'пользователя'}`,
       text: orderSummary,
     });
