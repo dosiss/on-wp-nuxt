@@ -8,7 +8,9 @@ export const useCartStore = defineStore('cart', {
   },
   actions: {
     addToCart(data) {
-      this.cart.push({ ...data, quantity: 1 })
+      // Make sure to include the URI in the cart item
+      const uri = data.uri || (typeof window !== 'undefined' ? window.location.pathname.substring(1) : '');
+      this.cart.push({ ...data, uri, quantity: 1 })
     },
     removeFromCart(data) {
         this.cart = this.cart.filter(product => product.id !== data.id)
@@ -22,5 +24,4 @@ export const useCartStore = defineStore('cart', {
         return this.cart;
     }
   }
-
 })

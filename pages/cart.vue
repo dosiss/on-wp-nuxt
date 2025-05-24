@@ -22,12 +22,17 @@ async function sendOrder() {
     const userId = initDataUnsafe.user?.id;
     const userName = initDataUnsafe.user?.username;
 
-    // Prepare cart data
-    const cartItems = data.getCartItems.map(item => ({
-      title: item.title,
-      price: item.productData.productPriceReduced ?? item.productData.productPrice,
-      url: item.uri || item.slug ? `https://odet-nadezhdu.netlify.app/${item.uri || item.slug}` : ''
-    }));
+    // Prepare cart data with product URLs
+    const cartItems = data.getCartItems.map(item => {
+      // Get the URI from the item if available
+      const productUri = item.uri || '';
+      
+      return {
+        title: item.title,
+        price: item.productData.productPriceReduced ?? item.productData.productPrice,
+        url: productUri ? `https://odet-nadezhdu.netlify.app/${productUri}` : ''
+      };
+    });
 
     // Calculate total price
     const totalPrice = cartItems.reduce((sum, item) => sum + parseFloat(item.price), 0);
