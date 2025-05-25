@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
     // Send email
     const info = await transporter.sendMail({
       from: '"odet_nadezhdu" <nirahk@ya.ru>',
-      to: 'maria.shumakova@gmail.com', 
+      to: 'bcoziworthit@gmail.com', 
       cc: 'alexander.kharin@gmail.com',
       subject: `Новый заказ от ${userName || userId || 'пользователя'}`,
       text: orderSummary,
