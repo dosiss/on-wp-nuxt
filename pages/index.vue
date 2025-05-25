@@ -419,10 +419,7 @@ onUnmounted(() => {
     <div class="px-4 pt-20">
       <div 
         class="flex justify-between align-center transition-all duration-300 fixed top-13 left-0 right-0 z-10 p-4 bg-white"
-        :class="{ 
-          'opacity-100 translate-y-0': isHeaderVisible, 
-          'opacity-0 -translate-y-full': !isHeaderVisible 
-        }"
+        :style="{ display: isHeaderVisible ? 'flex' : 'none' }"
         ref="headerControls"
       >
         <CategoriesDropdown :parentCategories="parentCategories" :childCategories="childCategories" />

@@ -1,5 +1,5 @@
 <template>
-  <div class="relative flex-grow mr-8">
+  <div class="relative flex-grow mr-8" :style="{ display: isVisible ? 'block' : 'none' }">
     <button
       @click="toggleDropdown"
       class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg w-full text-left flex items-center justify-between"
@@ -40,7 +40,11 @@ import { ref } from 'vue';
 
 const props = defineProps({
   parentCategories: Array,
-  childCategories: Array
+  childCategories: Array,
+  isVisible: {
+    type: Boolean,
+    default: true
+  }
 });
 
 const dropdownOpen = ref(false);
