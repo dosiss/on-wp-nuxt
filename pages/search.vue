@@ -97,6 +97,7 @@ const fetchSearchResults = async (query) => {
                 productData {
                   __typename
                   productDescription
+                  productSize
                   productPrice
                   productPriceReduced
                   productGallery {

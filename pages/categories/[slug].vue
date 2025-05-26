@@ -57,7 +57,7 @@
     query: {
       query: `
         query AllProductsByCategory($slug: String!) {
-        posts(where: { categoryName: $slug }, first: 50) {
+        posts(where: { categoryName: $slug }, first: 100) {
             nodes {
             title
             date
@@ -78,6 +78,7 @@
             productData {
                 __typename
                 productDescription
+                productSize
                 productPrice
                 productPriceReduced
                 productGallery {
