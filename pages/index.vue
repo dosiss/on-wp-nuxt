@@ -51,6 +51,7 @@ const { data, pending, error } = await useFetch(config.public.wordpressUrl, {
             productData {
               __typename
               productDescription
+              productSize
               productPrice
               productPriceReduced
               productGallery {
@@ -179,6 +180,7 @@ const loadMorePosts = async () => {
                 productData {
                   __typename
                   productDescription
+                  productSize
                   productPrice
                   productPriceReduced
                   productGallery {
