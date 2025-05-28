@@ -1,7 +1,7 @@
 <template>
     <li>
       <div @click="toggleSubMenu" class="px-4 py-2 hover:bg-gray-100 cursor-pointer flex justify-between">
-        <NuxtLink :to="`/category/${parentSlug}`">{{ parentCategory.name }}</NuxtLink>
+        <NuxtLink :to="`/categories/${parentSlug}`">{{ parentCategory.name }}</NuxtLink>
         <svg
           v-if="hasChildren"
           :class="{'rotate-180': submenuOpen}"

@@ -45,7 +45,7 @@
     isOpen.value = !isOpen.value;
   };
   
-  const selectOption = (option) => {
+  const selectOption = (option: { label: string; value: string }) => {
     emit('update:modelValue', option.value);
     isOpen.value = false;
   };

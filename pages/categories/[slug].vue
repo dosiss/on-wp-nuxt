@@ -127,16 +127,21 @@
 ];
 
 const sortedPosts = computed(() => {
+  // Check if products exist before trying to spread them
+  if (!data.value?.products || !Array.isArray(data.value.products)) {
+    return [];
+  }
+  
   if (sortBy.value === 'date') {
-    return [...data.value?.products].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return [...data.value.products].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   } else if (sortBy.value === 'price') {
-    return [...data.value?.products].sort((a, b) => {
+    return [...data.value.products].sort((a, b) => {
       const priceA = parseFloat(a.productData.productPriceReduced ?? a.productData.productPrice);
       const priceB = parseFloat(b.productData.productPriceReduced ?? b.productData.productPrice);
       return priceA - priceB;
     });
   }
-  return data.value?.products;
+  return data.value.products;
 });
   </script>
   
