@@ -13,6 +13,9 @@ const { initDataUnsafe } = useWebApp(); // useWebApp function to access WebApp a
 const config = useRuntimeConfig();
 const isProcessing = ref(false);
 
+// Extract user information from initDataUnsafe and make it available to the template
+const userName = ref(initDataUnsafe.user?.username);
+
 async function sendOrder() {
   if (isProcessing.value) return;
   isProcessing.value = true;
@@ -20,8 +23,7 @@ async function sendOrder() {
   try {
     // Extract user information from initDataUnsafe
     const userId = initDataUnsafe.user?.id;
-    const userName = initDataUnsafe.user?.username;
-
+    
     // Prepare cart data with product URLs
     const cartItems = data.getCartItems.map(item => {
       // Get the URI from the item if available
@@ -40,7 +42,7 @@ async function sendOrder() {
     // Prepare data to send to Telegram bot and email
     const orderData = {
       userId: userId,
-      userName: `@${userName}`,
+      userName: `@${userName.value}`,
       cart: cartItems,
       totalPrice: totalPrice.toFixed(2),
       orderDate: new Date().toISOString(),
@@ -65,8 +67,9 @@ async function sendOrder() {
       // Continue with Telegram data sending even if email fails
     }
 
-    // Show confirmation alert
-    showAlert('Спасибо за ваш заказ! Мы свяжемся с вами в Телеграм.');
+    // Show confirmation alert with alternative message if userName is undefined
+    const alertMessage = userName.value ? 'Спасибо за ваш заказ! Мы свяжемся с вами в Телеграм.' : 'Спасибо за ваш заказ! К сожалению, мы не можем определить ваше имя пользователя в Telegram. Пожалуйста, пришлите скриншот страницы с вашим заказои нам в телеграм на ник, указанный на странице.';
+    showAlert(alertMessage);
     
     // Short delay to ensure the alert is shown before potentially closing the WebApp
     setTimeout(() => {
@@ -87,6 +90,9 @@ async function sendOrder() {
   <div class="bg-grey-100 min-h-screen">
     <TheHeader></TheHeader>
     <Cart></Cart>
+    <div v-if="!userName" class="text-center mt-4 mb-2 px-4">
+      Пожалуйста, пришлите скриншот этой страницы с вашим заказом в телеграм <a href="https://t.me/@maria_shumakova" class="text-blue-500 underline">@maria_shumakova</a>
+    </div>
     <ClientOnly>
       <MainButton text="Заказать" @click="sendOrder" :disabled="isProcessing" />
     </ClientOnly>
