@@ -10,6 +10,9 @@ export default defineNuxtConfig({
   // },
   app: {
     head: {
+      htmlAttrs: {
+        lang: 'ru'
+      },
       script: [{ src: 'https://telegram.org/js/telegram-web-app.js' }],
     },
   },

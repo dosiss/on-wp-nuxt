@@ -7,7 +7,7 @@
         <SortDropdown v-model="sortBy" :options="sortOptions" class="" />
       </div>
       
-      <div v-if="loading" class="text-center py-10">
+      <div v-if="loading && !searchResults.length" class="text-center py-10">
         <p class="text-lg">Загрузка результатов...</p>
       </div>
       
@@ -27,7 +27,26 @@
       
       <!-- Display result count -->
       <div v-if="searchResults.length > 0" class="text-center mt-4 text-gray-600">
-        Найдено результатов: {{ searchResults.length }}
+        Показано результатов: {{ searchResults.length }}
+      </div>
+      
+      <!-- Load More Button -->
+      <div class="flex justify-center my-8">
+        <button 
+          v-if="hasMorePosts && !loading && endCursor" 
+          @click="loadMoreResults" 
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Загрузить еще
+        </button>
+        
+        <!-- Loading indicator -->
+        <div v-if="loading && searchResults.length > 0" class="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900"></div>
+      </div>
+      
+      <!-- End of results message -->
+      <div v-if="!loading && !hasMorePosts && searchResults.length > 0" class="text-center text-gray-500 my-8">
+        Все результаты загружены
       </div>
     </div>
   </div>
@@ -36,15 +55,20 @@
 <script setup>
 import { useRoute } from 'vue-router';
 import { useRuntimeConfig } from '#app';
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, nextTick } from 'vue';
 import SortDropdown from '~/components/SortDropdown.vue';
 
 const route = useRoute();
 const config = useRuntimeConfig();
 const searchQuery = computed(() => route.query.q || '');
 const sortBy = ref('date'); // Default sorting by date
-const loading = ref(true);
+const loading = ref(false);
 const searchResults = ref([]);
+const currentPage = ref(1);
+const postsPerPage = 20; // Smaller batch size to avoid CORS issues
+const hasMorePosts = ref(true);
+const endCursor = ref(''); // Store the cursor for pagination
+const isLoadingMore = ref(false); // Additional flag to prevent duplicate requests
 
 // Function to save current search path as referrer
 const saveReferrer = () => {
@@ -55,7 +79,6 @@ const saveReferrer = () => {
 };
 
 // Save referrer on page load as well
-// Add this to your onMounted hook
 onMounted(() => {
   if (process.client) {
     // Clear the "from frontpage" flag
@@ -71,23 +94,32 @@ const sortOptions = [
   { label: 'Сначала дешевле', value: 'price' },
 ];
 
-// Function to fetch search results
-const fetchSearchResults = async (query) => {
+// Function to fetch search results with pagination
+const fetchSearchResults = async (query, page = 1) => {
   if (!query) {
     searchResults.value = [];
     loading.value = false;
+    hasMorePosts.value = false;
     return;
   }
   
   loading.value = true;
   
   try {
+    // Use cursor-based pagination
+    const cursor = page === 1 ? null : endCursor.value;
+    const cursorParam = cursor ? `, after: "${cursor}"` : '';
+    
     const { data } = await useFetch(config.public.wordpressUrl, {
-      method: 'post', // Changed from 'get' to 'post' for more reliable GraphQL requests
-      body: { // Changed from 'query' to 'body' for POST request
+      method: 'post',
+      body: {
         query: `
           query SearchProducts($searchTerm: String!) {
-            posts(where: {search: $searchTerm}, first: 100) {
+            posts(where: {search: $searchTerm}, first: ${postsPerPage}${cursorParam}) {
+              pageInfo {
+                endCursor
+                hasNextPage
+              }
               nodes {
                 id
                 title
@@ -120,17 +152,61 @@ const fetchSearchResults = async (query) => {
         variables: {
           searchTerm: query
         }
-      }
+      },
+      key: `search-${query}-page-${page}-${Date.now()}` // Use timestamp for truly unique keys
     });
     
-    console.log('Search results count:', data.value?.data?.posts?.nodes?.length || 0);
-    searchResults.value = data.value?.data?.posts?.nodes || [];
+    const posts = data.value?.data?.posts?.nodes || [];
+    const pageInfo = data.value?.data?.posts?.pageInfo;
+    
+    console.log('Search results count:', posts.length);
+    
+    if (page === 1) {
+      searchResults.value = posts;
+    } else {
+      // Use nextTick to ensure UI updates properly
+      await nextTick();
+      searchResults.value = [...searchResults.value, ...posts];
+    }
+    
+    // Update pagination info
+    if (pageInfo?.endCursor) {
+      endCursor.value = pageInfo.endCursor;
+      hasMorePosts.value = pageInfo.hasNextPage;
+      console.log('End cursor set to:', endCursor.value, 'Has next page:', hasMorePosts.value);
+    } else {
+      hasMorePosts.value = false;
+      console.log('No more results available');
+    }
+    
+    // Update current page
+    if (posts.length > 0) {
+      currentPage.value = page;
+    }
   } catch (error) {
     console.error('Error fetching search results:', error);
     searchResults.value = [];
+    hasMorePosts.value = false;
   } finally {
     loading.value = false;
+    isLoadingMore.value = false;
   }
+};
+
+// Function to load more search results
+const loadMoreResults = async () => {
+  if (loading.value || isLoadingMore.value || !hasMorePosts.value || !endCursor.value) {
+    console.log('Skipping loadMoreResults:', { 
+      loading: loading.value,
+      isLoadingMore: isLoadingMore.value,
+      hasMorePosts: hasMorePosts.value, 
+      endCursor: endCursor.value 
+    });
+    return;
+  }
+  
+  isLoadingMore.value = true;
+  await fetchSearchResults(searchQuery.value, currentPage.value + 1);
 };
 
 // Sort the search results
@@ -155,6 +231,12 @@ const sortedResults = computed(() => {
 
 // Watch for changes in the search query
 watch(searchQuery, (newQuery) => {
+  // Reset pagination when search query changes
+  currentPage.value = 1;
+  endCursor.value = '';
+  hasMorePosts.value = true;
+  searchResults.value = [];
+  
   fetchSearchResults(newQuery);
 }, { immediate: true });
 </script>
