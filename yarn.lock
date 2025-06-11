@@ -4457,6 +4457,13 @@ signal-exit@^4.1.0:
   resolved "https://registry.npmjs.org/signal-exit/-/signal-exit-4.1.0.tgz"
   integrity sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==
 
+simple-analytics-vue@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.npmjs.org/simple-analytics-vue/-/simple-analytics-vue-3.0.2.tgz"
+  integrity sha512-YEKTvd8IlAxJcywFkdGyO8S+ZO5iL8GaX/RsPoRlQtWOV9F64HW+gYI6NL7T2/Bf3as0ucyBmXGou1q4Eq6F9A==
+  dependencies:
+    vue "^3.0.0"
+
 simple-git@^3.25.0:
   version "3.25.0"
   resolved "https://registry.npmjs.org/simple-git/-/simple-git-3.25.0.tgz"

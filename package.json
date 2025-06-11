@@ -19,5 +19,8 @@
     "pinia": "^2.2.2",
     "vue": "latest",
     "vue-tg": "^0.8.0"
+  },
+  "devDependencies": {
+    "simple-analytics-vue": "^3.0.2"
   }
 }
