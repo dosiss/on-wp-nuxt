@@ -23,8 +23,8 @@
                     <h2 class="font-normal text-sm leading-5 mt-4">{{ post.title }}</h2>
                     <span class="font-semibold text-sm">{{ post.productData.productSize }}</span>
                 </div>    
-                <span :class="`${post.productData.productPriceReduced ? 'line-through text-sm' : 'text-lg' }`" class="mt-4">{{ post.productData.productPrice }} ₽</span>
-                <span v-if="post.productData.productPriceReduced" class="font-semibold text-lg ml-2">{{  post.productData.productPriceReduced }} ₽</span>
+                <span :class="`${post.productData.productPriceReduced ? 'line-through text-sm' : 'text-sm font-semibold' }`" class="mt-4">{{ post.productData.productPrice }} ₽</span>
+                <span v-if="post.productData.productPriceReduced" class="font-semibold text-sm ml-2">{{  post.productData.productPriceReduced }} ₽</span>
                 <!-- <div class="text-sm">{{ post.categories.edges[1].node.name }}</div> -->
                 <!-- <p>{{ new Date(post.date).toLocaleDateString() }}</p> -->
 
