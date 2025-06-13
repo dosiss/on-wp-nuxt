@@ -24,7 +24,7 @@ export default defineNuxtConfig({
   ],
   runtimeConfig: {
     public: {
-        wordpressUrl: 'https://s03.devdog.space/graphql'
+        wordpressUrl: 'https://s03.devdog.xyz/graphql'
     }
   },
   swiper: {
