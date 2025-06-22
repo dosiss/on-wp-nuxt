@@ -18,6 +18,7 @@
                 :src="post.productData.productGallery?.edges?.[0]?.node?.mediaDetails?.sizes?.[0]?.sourceUrl" 
                 :alt="`${post.title} image`" 
                 class="object-cover rounded-md min-w-full"
+                loading="lazy"
                 />
                 <div class="title-content flex justify-between items-start">
                     <h2 class="font-normal text-sm leading-5 mt-4">{{ post.title }}</h2>
