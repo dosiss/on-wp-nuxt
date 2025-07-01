@@ -1,6 +1,7 @@
 <script setup>
 import CategoriesDropdown from '~/components/CategoriesDropdown.vue';
 import SortDropdown from '~/components/SortDropdown.vue';
+import BrandsDropdown from '~/components/BrandsDropdown.vue';
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 
 const config = useRuntimeConfig();
@@ -12,6 +13,8 @@ const postsPerPage = 30;
 const hasMorePosts = ref(true);
 const endCursor = ref(''); // Store the cursor for pagination
 const isLoadingMore = ref(false); // Additional flag to prevent duplicate requests
+const selectedBrand = ref(null); // Track selected brand
+const allBrands = ref([]); // Store all available brands
 
 const debug = ref({
   initialDataLoaded: false,
@@ -19,13 +22,305 @@ const debug = ref({
   error: null
 });
 
-// Initial data fetch with cursor-based pagination
+// Fetch all available brands
+const { data: brandsData } = await useFetch(config.public.wordpressUrl, {
+  method: 'post',
+  body: {
+    query: `
+      query GetAllBrands {
+        posts(first: 1000) {
+          nodes {
+            productData {
+              productBrand
+            }
+          }
+        }
+      }
+    `
+  },
+  transform(data) {
+    try {
+      const brands = new Set();
+      
+      if (data?.data?.posts?.nodes) {
+        data.data.posts.nodes.forEach(post => {
+          if (post.productData?.productBrand && post.productData.productBrand.trim() !== '') {
+            brands.add(post.productData.productBrand);
+          }
+        });
+      }
+      
+      return Array.from(brands).sort();
+    } catch (error) {
+      console.error('Error extracting brands:', error);
+      return [];
+    }
+  }
+});
+
+// Update allBrands when brandsData is available
+watch(brandsData, (newBrands) => {
+  if (newBrands && newBrands.length > 0) {
+    allBrands.value = newBrands;
+  }
+}, { immediate: true });
+
+// Watch for brand selection changes to refetch posts
+watch(selectedBrand, async (newBrand) => {
+  // Reset pagination when brand changes
+  currentPage.value = 1;
+  allPosts.value = [];
+  endCursor.value = '';
+  hasMorePosts.value = true;
+  
+  // Fetch posts with the new brand filter
+  await fetchPosts();
+});
+
+// Function to fetch posts with current filters
+// Modify the fetchPosts function
+const fetchPosts = async () => {
+  loading.value = true;
+  
+  try {
+    // Define variables for the standard query (without brand filtering)
+    const variables = {
+      first: postsPerPage,
+      after: endCursor.value || null
+    };
+    
+    let query;
+    
+    // Use a completely separate query for brand filtering
+    if (selectedBrand.value) {
+
+      console.log("Selected brand", selectedBrand.value);
+      // Direct query for brand filtering (limited to 50 posts)
+      query = `
+        query FilteredPosts {
+          posts(
+            first: 50
+            where: {
+              metaQuery: {
+                relation: AND,
+                metaArray: [
+                  {
+                    key: "product_brand",
+                    value: "${selectedBrand.value}",
+                    compare: EQUAL_TO
+                  }
+                ]
+              }
+            }
+          ) {
+            pageInfo {
+              endCursor
+              hasNextPage
+            }
+            nodes {
+              title
+              date
+              uri
+              categories {
+                edges {
+                  node {
+                    name
+                    slug
+                    parent {
+                      node {
+                        name
+                        slug
+                      }
+                    }
+                  }
+                }
+              }
+              productData {
+                __typename
+                productDescription
+                productSize
+                productPrice
+                productPriceReduced
+                productBrand
+                productGallery {
+                  edges {
+                    node {
+                      mediaDetails {
+                        sizes(include: THUMBNAIL) {
+                          sourceUrl
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          categories(first: 40) {
+            nodes {
+              name
+              slug
+              parent {
+                node {
+                  name
+                  slug
+                }
+              }
+            }
+          }
+        }
+      `;
+      
+      // For brand filtering, we don't need variables
+      const { data: postsData } = await useFetch(config.public.wordpressUrl, {
+        method: 'post',
+        body: {
+          query: query
+        },
+        key: `posts-brand-${selectedBrand.value}-${Date.now()}` // Use unique key for caching
+      });
+      
+      if (postsData.value?.data?.posts?.nodes) {
+        // Replace all posts with the filtered results
+        allPosts.value = postsData.value.data.posts.nodes;
+        
+        // Update pagination info
+        if (postsData.value?.data?.posts?.pageInfo) {
+          endCursor.value = postsData.value.data.posts.pageInfo.endCursor;
+          hasMorePosts.value = postsData.value.data.posts.pageInfo.hasNextPage;
+        } else {
+          hasMorePosts.value = false;
+        }
+        
+        // Update categories if needed
+        if (postsData.value?.data?.categories) {
+          data.value = {
+            ...data.value,
+            categories: postsData.value.data.categories.nodes
+          };
+        }
+        
+        currentPage.value = 1; // Reset to page 1 since we're getting all brand results at once
+        debug.value.initialDataLoaded = true;
+      }
+    } else {
+      // Standard query without brand filtering
+      query = `
+        query FilteredPosts($first: Int!, $after: String) {
+          posts(first: $first, after: $after) {
+            pageInfo {
+              endCursor
+              hasNextPage
+            }
+            nodes {
+              title
+              date
+              uri
+              categories {
+                edges {
+                  node {
+                    name
+                    slug
+                    parent {
+                      node {
+                        name
+                        slug
+                      }
+                    }
+                  }
+                }
+              }
+              productData {
+                __typename
+                productDescription
+                productSize
+                productPrice
+                productPriceReduced
+                productBrand
+                productGallery {
+                  edges {
+                    node {
+                      mediaDetails {
+                        sizes(include: THUMBNAIL) {
+                          sourceUrl
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          categories(first: 40) {
+            nodes {
+              name
+              slug
+              parent {
+                node {
+                  name
+                  slug
+                }
+              }
+            }
+          }
+        }
+      `;
+      
+      const { data: postsData } = await useFetch(config.public.wordpressUrl, {
+        method: 'post',
+        body: {
+          query: query,
+          variables: variables
+        },
+        key: `posts-all-${Date.now()}` // Use unique key for caching
+      });
+      
+      if (postsData.value?.data?.posts?.nodes) {
+        const posts = postsData.value.data.posts.nodes;
+        
+        if (currentPage.value === 1) {
+          // First page, replace all posts
+          allPosts.value = posts;
+        } else {
+          // Append to existing posts
+          allPosts.value = [...allPosts.value, ...posts];
+        }
+        
+        // Update pagination info
+        if (postsData.value?.data?.posts?.pageInfo) {
+          endCursor.value = postsData.value.data.posts.pageInfo.endCursor;
+          hasMorePosts.value = postsData.value.data.posts.pageInfo.hasNextPage;
+        } else {
+          hasMorePosts.value = false;
+        }
+        
+        // Update categories if needed
+        if (currentPage.value === 1 && postsData.value?.data?.categories) {
+          data.value = {
+            ...data.value,
+            categories: postsData.value.data.categories.nodes
+          };
+        }
+        
+        currentPage.value++;
+        debug.value.initialDataLoaded = true;
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    debug.value.error = error.message;
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Initial data fetch
 const { data, pending, error } = await useFetch(config.public.wordpressUrl, {
   method: 'post',
   body: {
     query: `
       query NewQuery {
-        posts (first:${postsPerPage}) {
+        posts(first: ${postsPerPage}) {
           pageInfo {
             endCursor
             hasNextPage
@@ -54,6 +349,7 @@ const { data, pending, error } = await useFetch(config.public.wordpressUrl, {
               productSize
               productPrice
               productPriceReduced
+              productBrand
               productGallery {
                 edges {
                   node {
@@ -68,7 +364,7 @@ const { data, pending, error } = await useFetch(config.public.wordpressUrl, {
             }
           }
         }
-        categories (first:40) {
+        categories(first: 40) {
           nodes {
             name
             slug
@@ -124,11 +420,13 @@ const { data, pending, error } = await useFetch(config.public.wordpressUrl, {
 });
 
 // Initialize allPosts from data when it's available
+// Modify the watch function to respect brand filtering
 watch(data, (newData) => {
-  if (newData?.posts && newData.posts.length > 0) {
-    console.log('Setting allPosts from data watch:', newData.posts.length);
-    allPosts.value = [...newData.posts];
-  }
+// Only update allPosts from data if no brand is selected
+if (!selectedBrand.value && newData?.posts && newData.posts.length > 0) {
+console.log('Setting allPosts from data watch:', newData.posts.length);
+allPosts.value = [...newData.posts];
+}
 }, { immediate: true });
 
 // Function to load more posts with cursor-based pagination
@@ -143,158 +441,21 @@ const loadMorePosts = async () => {
     return;
   }
   
-  loading.value = true;
   isLoadingMore.value = true;
-  console.log('Loading more posts, page:', currentPage.value + 1, 'with cursor:', endCursor.value);
-  
-  try {
-    // Use cursor-based pagination
-    const { data: moreData } = await useFetch(config.public.wordpressUrl, {
-      method: 'post',
-      body: {
-        query: `
-          query LoadMorePosts {
-            posts (first:${postsPerPage}, after: "${endCursor.value}") {
-              pageInfo {
-                endCursor
-                hasNextPage
-              }
-              nodes {
-                title
-                date
-                uri
-                categories {
-                  edges {
-                    node {
-                      name
-                      slug
-                      parent {
-                        node {
-                          name
-                          slug
-                        }
-                      }
-                    }
-                  }
-                }
-                productData {
-                  __typename
-                  productDescription
-                  productSize
-                  productPrice
-                  productPriceReduced
-                  productGallery {
-                    edges {
-                      node {
-                        mediaDetails {
-                          sizes(include: THUMBNAIL) {
-                            sourceUrl
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        `
-      },
-      key: `more-posts-${Date.now()}` // Use timestamp for truly unique keys
-    });
-    
-    console.log('More data received:', moreData.value);
-    
-    if (moreData.value?.data?.posts?.nodes) {
-      const newPosts = moreData.value.data.posts.nodes;
-      console.log('New posts loaded:', newPosts.length);
-      
-      if (newPosts.length > 0) {
-        // Use nextTick to ensure UI updates properly
-        await nextTick();
-        allPosts.value = [...allPosts.value, ...newPosts];
-        currentPage.value++;
-        debug.value.morePostsLoaded = true;
-        
-        // Update the end cursor for next pagination
-        if (moreData.value?.data?.posts?.pageInfo?.endCursor) {
-          endCursor.value = moreData.value.data.posts.pageInfo.endCursor;
-          hasMorePosts.value = moreData.value.data.posts.pageInfo.hasNextPage;
-          console.log('Updated cursor:', endCursor.value, 'Has next page:', hasMorePosts.value);
-        } else {
-          hasMorePosts.value = false;
-          console.log('No more cursor available');
-        }
-      } else {
-        hasMorePosts.value = false;
-        console.log('No more posts available');
-      }
-    } else {
-      console.error('No posts found in additional data');
-      hasMorePosts.value = false;
-    }
-  } catch (error) {
-    console.error('Error loading more posts:', error);
-    debug.value.error = error.message;
-  } finally {
-    loading.value = false;
-    isLoadingMore.value = false;
-    
-    // Force a re-render
-    await nextTick();
-  }
+  await fetchPosts();
+  isLoadingMore.value = false;
 };
 
-// Set up initial data on mount
-onMounted(() => {
-  console.log('Component mounted');
-  
-  // Ensure allPosts is populated from data on client-side
-  if (data.value?.posts && data.value.posts.length > 0 && allPosts.value.length === 0) {
-    console.log('Setting allPosts in onMounted:', data.value.posts.length);
-    allPosts.value = [...data.value.posts];
-  }
-  
-  // Check if there's a saved scroll position
-  const savedPosition = sessionStorage.getItem('lastScrollPosition');
-  if (savedPosition) {
-    // Restore the scroll position
-    setTimeout(() => {
-      const position = parseInt(savedPosition);
-      window.scrollTo({
-        top: position,
-        behavior: 'auto'
-      });
-      // Clear the saved position after restoring
-      sessionStorage.removeItem('lastScrollPosition');
-    }, 500); // Small delay to ensure the page has rendered
-  }
-});
-
-// Clean up scroll listener
-onUnmounted(() => {
-  console.log('Component unmounted');
-});
-
-// Save scroll position when clicking on a product
-const saveScrollPosition = () => {
-  sessionStorage.setItem('lastScrollPosition', window.scrollY.toString());
+// Handle brand selection
+const handleBrandSelection = (brand) => {
+  selectedBrand.value = brand;
 };
 
-const sortOptions = [
-  { label: 'Сначала новые', value: 'date' },
-  { label: 'Сначала дешевле', value: 'price' },
-];
-
+// Update sortedPosts to use allPosts directly
 const sortedPosts = computed(() => {
   console.log('Computing sorted posts, count:', allPosts.value.length);
   
   if (!allPosts.value || allPosts.value.length === 0) {
-    // Fallback to data.value.posts if allPosts is empty
-    if (data.value?.posts && data.value.posts.length > 0) {
-      console.log('Using fallback posts from data:', data.value.posts.length);
-      return sortPostsByCurrentCriteria([...data.value.posts]);
-    }
     console.log('No posts to sort');
     return [];
   }
@@ -424,7 +585,14 @@ onUnmounted(() => {
         :style="{ display: isHeaderVisible ? 'flex' : 'none' }"
         ref="headerControls"
       >
-        <CategoriesDropdown :parentCategories="parentCategories" :childCategories="childCategories" />
+        <div class="flex flex-grow">
+          <CategoriesDropdown :parentCategories="parentCategories" :childCategories="childCategories" />
+          <BrandsDropdown 
+            :brands="allBrands" 
+            :selectedBrand="selectedBrand"
+            @select-brand="handleBrandSelection" 
+          />
+        </div>
         <SortDropdown v-model="sortBy" :options="sortOptions" class="" />
       </div>
       
