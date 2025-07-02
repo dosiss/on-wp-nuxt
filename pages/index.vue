@@ -451,11 +451,6 @@ const handleBrandSelection = (brand) => {
   selectedBrand.value = brand;
 };
 
-const sortOptions = [
-  { label: 'Сначала новые', value: 'date' },
-  { label: 'Сначала дешевле', value: 'price' },
-];
-
 // Update sortedPosts to use allPosts directly
 const sortedPosts = computed(() => {
   console.log('Computing sorted posts, count:', allPosts.value.length);
@@ -584,96 +579,78 @@ onUnmounted(() => {
 <template>
   <div class="bg-grey-100">
     <TheHeader></TheHeader>
- 
-      <div class="px-4 pt-20">
-   
-        <div 
-          class="flex justify-between align-center transition-all duration-300 fixed top-13 left-0 right-0 z-10 p-4 bg-white"
-          :style="{ display: isHeaderVisible ? 'flex' : 'none' }"
-          ref="headerControls"
-        >
-          <div class="flex flex-grow overflow-x-auto scrollbar-hide" style="max-width: 100%;">
-            <div class="flex min-w-max pr-4">
-              <CategoriesDropdown :parentCategories="parentCategories" :childCategories="childCategories" />
-              <BrandsDropdown 
-                :brands="allBrands" 
-                :selectedBrand="selectedBrand"
-                @select-brand="handleBrandSelection" 
-              />
-              <SortDropdown v-model="sortBy" :options="sortOptions" class="flex-shrink-0" />
-            </div>
-          </div>
+    <div class="px-4 pt-20">
+      <div 
+        class="flex justify-between align-center transition-all duration-300 fixed top-13 left-0 right-0 z-10 p-4 bg-white"
+        :style="{ display: isHeaderVisible ? 'flex' : 'none' }"
+        ref="headerControls"
+      >
+        <div class="flex flex-grow">
+          <CategoriesDropdown :parentCategories="parentCategories" :childCategories="childCategories" />
+          <BrandsDropdown 
+            :brands="allBrands" 
+            :selectedBrand="selectedBrand"
+            @select-brand="handleBrandSelection" 
+          />
         </div>
-       
-        <!-- Add a spacer div to prevent content from jumping when header is fixed -->
-        <div class="h-12 mb-4"></div>
-        
-        <!-- Debug info (remove in production) -->
-        <div v-if="debug.error" class="bg-red-100 p-4 my-4 rounded">
-          <p class="text-red-700">Error: {{ debug.error }}</p>
-        </div>
-        
-        <!-- Loading state -->
-        <div v-if="pending && !data?.posts?.length" class="flex justify-center items-center py-20">
-          <p class="text-xl">Loading products...</p>
-        </div>
-        
-        <!-- Error state -->
-        <div v-else-if="error" class="flex justify-center items-center py-20">
-          <p class="text-xl text-red-500">Error loading products. Please try again later.</p>
-        </div>
-        
-        <!-- Products grid -->
-        <div v-else-if="sortedPosts.length > 0" class="grid gap-4 grid-cols-2 lg:grid-cols-4 p-4">
-          <Post 
-            v-for="post in sortedPosts" 
-            :key="post.uri" 
-            :post="post"
-            @click="saveScrollPosition"
-          ></Post>
-        </div>
-        
-        <!-- Empty state -->
-        <div v-else class="flex justify-center items-center py-20">
-          <p class="text-xl">Загрузка</p>
-        </div>
-        
-        <!-- Load More Button -->
-        <div class="flex justify-center my-8">
-          <button 
-            v-if="hasMorePosts && !loading && endCursor" 
-            @click="loadMorePosts" 
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Загрузить еще
-          </button>
-
-          <div v-if="!loading && hasMorePosts && !endCursor" class="text-center text-gray-500 my-8">
-            Выберите категорию вверху страницы чтобы продолжить
-          </div>
-          
-          <!-- Loading indicator -->
-          <div v-if="loading" class="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900"></div>
-        </div>
-        
-        <!-- End of results message -->
-        <div v-if="!loading && !hasMorePosts && allPosts.length > 0" class="text-center text-gray-500 my-8">
-          Все товары загружены
-        </div>
+        <SortDropdown v-model="sortBy" :options="sortOptions" class="" />
       </div>
+      
+      <!-- Add a spacer div to prevent content from jumping when header is fixed -->
+      <div class="h-12 mb-4"></div>
+      
+      <!-- Debug info (remove in production) -->
+      <div v-if="debug.error" class="bg-red-100 p-4 my-4 rounded">
+        <p class="text-red-700">Error: {{ debug.error }}</p>
+      </div>
+      
+      <!-- Loading state -->
+      <div v-if="pending && !data?.posts?.length" class="flex justify-center items-center py-20">
+        <p class="text-xl">Loading products...</p>
+      </div>
+      
+      <!-- Error state -->
+      <div v-else-if="error" class="flex justify-center items-center py-20">
+        <p class="text-xl text-red-500">Error loading products. Please try again later.</p>
+      </div>
+      
+      <!-- Products grid -->
+      <div v-else-if="sortedPosts.length > 0" class="grid gap-4 grid-cols-2 lg:grid-cols-4 p-4">
+        <Post 
+          v-for="post in sortedPosts" 
+          :key="post.uri" 
+          :post="post"
+          @click="saveScrollPosition"
+        ></Post>
+      </div>
+      
+      <!-- Empty state -->
+      <div v-else class="flex justify-center items-center py-20">
+        <p class="text-xl">No products found</p>
+      </div>
+      
+      <!-- Load More Button -->
+      <div class="flex justify-center my-8">
+        <button 
+          v-if="hasMorePosts && !loading && endCursor" 
+          @click="loadMorePosts" 
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Загрузить еще
+        </button>
 
+        <div v-if="!loading && hasMorePosts && !endCursor" class="text-center text-gray-500 my-8">
+          Выберите категорию вверху страницы чтобы продолжить
+        </div>
+        
+        <!-- Loading indicator -->
+        <div v-if="loading" class="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900"></div>
+      </div>
+      
+      <!-- End of results message -->
+      <div v-if="!loading && !hasMorePosts && allPosts.length > 0" class="text-center text-gray-500 my-8">
+        Все товары загружены
+      </div>
+    </div>
   </div>
 </template>
-
-<style>
-/* Hide scrollbar for Chrome, Safari and Opera */
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-
-/* Hide scrollbar for IE, Edge and Firefox */
-.scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
-}
-</style>

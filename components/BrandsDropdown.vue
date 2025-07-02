@@ -1,12 +1,12 @@
 <template>
-  <div class="relative flex-grow mr-8 min-w-[150px]" :style="{ display: isVisible && hasBrands ? 'block' : 'none' }">
+  <div class="relative flex-grow mr-8" :style="{ display: isVisible && hasBrands ? 'block' : 'none' }">
     <button
       @click="toggleDropdown"
       class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg w-full text-left flex items-center justify-between"
     >
       {{ selectedBrand || 'Бренды' }}
       <svg
-        class="w-5 h-5 ml-2 flex-shrink-0"
+        class="w-5 h-5"
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
@@ -15,8 +15,8 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
       </svg>
     </button>
-    <div v-if="dropdownOpen" class="fixed mt-1 bg-white shadow-lg rounded-lg z-50 right-6" style="width: 150px;">
-      <ul class="max-h-[340px] overflow-y-auto">
+    <div v-if="dropdownOpen" class="absolute mt-1 w-full bg-white shadow-lg rounded-lg z-10">
+      <ul>
         <li class="p-2 hover:bg-gray-100 cursor-pointer" @click="selectBrand(null)">
           Все бренды
         </li>
