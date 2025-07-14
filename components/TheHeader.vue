@@ -57,31 +57,47 @@
     const isHomePage = computed(() => {
         return route.path === '/' || route.path === '';
     });
-    
+ 
     // Compute the back link based on referrer or default to homepage
     const backLink = computed(() => {
-        // Only access sessionStorage in browser environment
         if (process.client) {
-            // Get the stored referrer from sessionStorage
             const referrer = sessionStorage.getItem('referrer');
-            // Get the stored "from frontpage" flag
             const fromFrontpage = sessionStorage.getItem('fromFrontpage');
+            const selectedBrand = sessionStorage.getItem('selectedBrand');
             
-            // If user came from frontpage, always go back to frontpage
+            if(isHomePage.value === 'true') {
+                return '/';
+            }
+            
             if (fromFrontpage === 'true') {
                 return '/';
             }
             
-            // If we have a stored category or search referrer and we're on a product page, use it
-            if (referrer && 
-                ((referrer.includes('/categories/') && !route.path.startsWith('/categories/')) || 
-                 (referrer.includes('/search') && !route.path.startsWith('/search'))) &&
-                route.path.startsWith('/')) {
-                return referrer;
+            // Check for brand in sessionStorage first
+            if (selectedBrand) {
+                console.log('Brand selected from dropdown:', selectedBrand);
+                return `/?brand=${selectedBrand}`;
+            }
+            
+            // Then check current URL
+            if (route.fullPath.includes('?brand=') || route.fullPath.includes('&brand=')) {
+                console.log('Current URL has brand parameter:', route.fullPath);
+                return route.fullPath;
+            }
+            
+            if (referrer && route.path.startsWith('/')) {
+                sessionStorage.removeItem('referrer');
+                
+                if (referrer.includes('/search') && !route.path.startsWith('/search')) {
+                    return referrer;
+                }
+                
+                if (referrer.includes('/categories/') && !route.path.startsWith('/categories/')) {
+                    return referrer;
+                }
             }
         }
         
-        // Default to homepage
         return '/';
     });
     
