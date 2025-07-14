@@ -449,6 +449,17 @@ const loadMorePosts = async () => {
 // Handle brand selection
 const handleBrandSelection = (brand) => {
   selectedBrand.value = brand;
+  
+  // Update URL with brand parameter
+  if (process.client) {
+    const url = new URL(window.location.href);
+    if (brand) {
+      url.searchParams.set('brand', encodeURIComponent(brand));
+    } else {
+      url.searchParams.delete('brand');
+    }
+    window.history.pushState({}, '', url);
+  }
 };
 
 // Update sortedPosts to use allPosts directly
@@ -560,11 +571,22 @@ const handleScroll = () => {
   lastScrollPosition.value = currentScrollPosition;
 };
 
-// Add scroll event listener
+// Add scroll event listener and check URL parameters
 onMounted(() => {
   if (process.client) {
     // Add scroll event listener
     window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // Check for brand parameter in URL
+    const url = new URL(window.location.href);
+    const brandParam = url.searchParams.get('brand');
+    if (brandParam) {
+      const decodedBrand = decodeURIComponent(brandParam);
+      // Only set if the brand exists in our list
+      if (allBrands.value.includes(decodedBrand)) {
+        selectedBrand.value = decodedBrand;
+      }
+    }
   }
 });
 

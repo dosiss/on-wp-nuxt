@@ -73,8 +73,11 @@ const isLoadingMore = ref(false); // Additional flag to prevent duplicate reques
 // Function to save current search path as referrer
 const saveReferrer = () => {
   if (process.client) {
+    // Clear any existing referrer first
+    sessionStorage.removeItem('referrer');
+    // Then save the current search path
     sessionStorage.setItem('referrer', route.fullPath);
-    console.log('Saved search referrer:', route.fullPath);
+    console.log('Saved and cleared search referrer:', route.fullPath);
   }
 };
 

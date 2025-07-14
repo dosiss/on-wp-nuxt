@@ -64,6 +64,14 @@ const toggleDropdown = () => {
 };
 
 const selectBrand = (brand) => {
+  if (process.client) {
+    if (brand) {
+      sessionStorage.setItem('selectedBrand', brand);
+    } else {
+      sessionStorage.removeItem('selectedBrand');
+    }
+  }
+  
   emit('select-brand', brand);
   dropdownOpen.value = false;
 };
