@@ -52,7 +52,7 @@
             />
           </svg>
           </button>
-          <h1 class="text-2xl mt-4 mb-2">{{ data.title }}</h1>
+          <h1 class="text-2xl mt-4 mb-2 pr-16">{{ data.title }}</h1>
         </div>
         <!-- <div class="text-2xl mt-4">{{ new Date(data.date).toLocaleDateString() }}</div> -->
         <span :class="`${data.productData?.productPriceReduced ? 'line-through text-base' : '' }`" class="mt-6 text-lg">{{ data.productData?.productPrice }} ₽</span>
@@ -129,12 +129,21 @@
 
   // Check if this product is in favorites
   const isFavorite = computed(() => {
-    return favoritesStore.isFavorite(data.value);
+    if (!data.value) return false;
+    return favoritesStore.isFavorite({
+      uri: '/' + uri // Make sure the URI format matches what's stored in favorites
+    });
   });
 
   // Toggle favorite status
   const toggleFavorite = () => {
-    favoritesStore.toggleFavorite(data.value);
+    if (!data.value) return;
+    favoritesStore.toggleFavorite({
+      id: data.value.id,
+      title: data.value.title,
+      uri: '/' + uri,
+      productData: data.value.productData
+    });
   };
 
 const alreadyInCart = (data) => {
