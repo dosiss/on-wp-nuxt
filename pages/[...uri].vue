@@ -1,7 +1,8 @@
 <template>
     <div>
       <TheHeader></TheHeader>
-      <main class="bg-gray-100 container mx-auto mt-6 pt-10 px-4 rounded-lg">
+      <main class="bg-gray-100 container mx-auto mt-6 pt-10 px-4 rounded-lg relative">
+        
         <!-- Gallery Section -->
         <div class="mt-8">
          <Swiper
@@ -32,7 +33,27 @@
           />
         </div>
         </div>
-        <h1 class="text-2xl mt-4 mb-2">{{ data.title }}</h1>
+        <div class="relative flex justify-between items-center">
+          <button 
+          @click.prevent="toggleFavorite"
+          class="absolute right-0 top-4 z-10 p-1 rounded-full bg-white bg-opacity-70 hover:bg-opacity-100 transition-all"
+        >
+          <svg 
+            class="w-8 h-8" 
+            :class="{ 'text-red-500 fill-current': isFavorite, 'text-gray-400': !isFavorite }"
+            viewBox="0 0 24 24" 
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path 
+              d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" 
+              :fill="isFavorite ? 'currentColor' : 'none'" 
+              stroke="currentColor" 
+              stroke-width="2"
+            />
+          </svg>
+          </button>
+          <h1 class="text-2xl mt-4 mb-2">{{ data.title }}</h1>
+        </div>
         <!-- <div class="text-2xl mt-4">{{ new Date(data.date).toLocaleDateString() }}</div> -->
         <span :class="`${data.productData?.productPriceReduced ? 'line-through text-base' : '' }`" class="mt-6 text-lg">{{ data.productData?.productPrice }} ₽</span>
         <span v-if="data.productData?.productPriceReduced" class="font-semibold text-xl ml-2">{{ data.productData?.productPriceReduced }} ₽</span>
@@ -48,10 +69,11 @@
   </template>
   
   <script setup>
-
   import 'swiper/css/pagination';
   import { Pagination } from 'swiper/modules';
   import { useCartStore } from "~~/store/cart";
+  import { useFavoritesStore } from "~~/store/favorites";
+  import { computed } from 'vue';
 
   const route = useRoute();
   const uri = route.params.uri.join('/');
@@ -102,7 +124,18 @@
      title: data.value.title
   })
 
-const cartStore = useCartStore();
+  const cartStore = useCartStore();
+  const favoritesStore = useFavoritesStore();
+
+  // Check if this product is in favorites
+  const isFavorite = computed(() => {
+    return favoritesStore.isFavorite(data.value);
+  });
+
+  // Toggle favorite status
+  const toggleFavorite = () => {
+    favoritesStore.toggleFavorite(data.value);
+  };
 
 const alreadyInCart = (data) => {
   const x = cartStore.cart?.find(el => el.id === data.id)

@@ -15,7 +15,7 @@
         </NuxtLink>
         <div class="flex items-center">
             <!-- Search Icon -->
-            <div class="relative mr-6">
+            <div class="relative mr-6 mt-2">
                 <button @click="toggleSearch" class="focus:outline-none">
                     <svg class="w-7 h-auto" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -23,7 +23,7 @@
                     </svg>
                 </button>
                 <!-- Search Input -->
-                <div v-if="showSearch" class="absolute right-0 top-full mt-[100px] w-64 bg-white shadow-lg rounded-lg p-2 z-20">
+                <div v-if="showSearch" class="absolute right-[calc(100%-68px)] top-full mt-[100px] w-64 bg-white shadow-lg rounded-lg p-2 z-20">
                     <input 
                         v-model="searchQuery" 
                         @keyup.enter="performSearch"
@@ -33,6 +33,19 @@
                     />
                 </div>
             </div>
+            
+            <!-- Favorites Icon -->
+            <NuxtLink href="/favorites" class="relative cursor-pointer mr-6">
+                <div v-if="favoritesCount > 0" class="absolute w-6 h-6 rounded-full text-center bg-red-600 text-white -right-4 -top-2">{{ favoritesCount }}</div>
+                <svg class="w-7 h-auto" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path 
+                        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" 
+                        stroke="currentColor" 
+                        stroke-width="2"
+                    />
+                </svg>
+            </NuxtLink>
+            
             <!-- Cart Icon -->
             <NuxtLink href="/cart" class="relative cursor-pointer">
                 <div class="absolute w-6 h-6 rounded-full text-center bg-red-600 text-white -right-4 -top-2">{{data.countCartItems}}</div>
@@ -45,13 +58,20 @@
 </template>
 <script setup>
     import { useCartStore } from '../store/cart'
+    import { useFavoritesStore } from '../store/favorites'
     import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
     import { useRouter, useRoute } from 'vue-router'
     
-    //get store
+    //get stores
     const data = useCartStore();
+    const favoritesStore = useFavoritesStore();
     const router = useRouter();
     const route = useRoute();
+    
+    // Get favorites count
+    const favoritesCount = computed(() => {
+        return favoritesStore.favoritesCount;
+    });
     
     // Check if current route is homepage
     const isHomePage = computed(() => {
