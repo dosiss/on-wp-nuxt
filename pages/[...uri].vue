@@ -94,6 +94,7 @@
                      productDescription
                      productPrice
                      productPriceReduced
+                     productBrand
                      productGallery {
                      edges {
                          node {
