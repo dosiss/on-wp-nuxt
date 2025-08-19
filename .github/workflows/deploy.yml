@@ -1,0 +1,22 @@
+name: Deploy to VPS
+on:
+  push:
+    branches: [ruvds]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            cd /var/www/odet-nadezhdu
+            git pull origin ruvds
+            npm ci
+            npm run build
+            pm2 restart odet-nadezhdu
