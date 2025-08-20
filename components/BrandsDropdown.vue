@@ -17,13 +17,13 @@
     </button>
     <div v-if="dropdownOpen" class="fixed mt-1 bg-white shadow-lg rounded-lg z-50 right-6" style="width: 150px;">
       <ul class="max-h-[340px] overflow-y-auto">
-        <li class="p-2 hover:bg-gray-100 cursor-pointer" @click="selectBrand(null)">
+        <li class="p-2  hover:bg-gray-100 cursor-pointer" @click="selectBrand(null)">
           Все бренды
         </li>
         <li 
           v-for="brand in brands" 
           :key="brand" 
-          class="p-2 hover:bg-gray-100 cursor-pointer"
+          class="p-2 leading-none hover:bg-gray-100 cursor-pointer"
           @click="selectBrand(brand)"
         >
           {{ brand }}
