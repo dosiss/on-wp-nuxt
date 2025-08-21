@@ -14,6 +14,8 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT }}
+          timeout: 15m
+          command_timeout: 15m
           script: |
             cd /var/www/odet-nadezhdu
             git pull origin ruvds
