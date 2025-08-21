@@ -32,7 +32,7 @@ async function sendOrder() {
       return {
         title: item.title,
         price: item.productData.productPriceReduced ?? item.productData.productPrice,
-        url: productUri ? `https://odet-nadezhdu.netlify.app/${productUri}` : ''
+        url: productUri ? `https://on.devdog.xyz/${productUri}` : ''
       };
     });
 
