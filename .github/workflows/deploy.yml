@@ -19,6 +19,9 @@ jobs:
           script: |
             cd /var/www/odet-nadezhdu
             git pull origin ruvds
-            npm ci
+            # Use npm ci with cache and parallel builds
+            npm ci --prefer-offline --no-audit
+            # Set Node.js memory limit and enable parallel builds
+            NODE_OPTIONS="--max-old-space-size=4096"
             npm run build
             pm2 restart odet-nadezhdu
