@@ -7,7 +7,20 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to server
+      - name: Update code
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_PORT }}
+          timeout: 5m
+          script: |
+            cd /var/www/odet-nadezhdu
+            git pull origin ruvds
+            npm ci --prefer-offline --no-audit
+      
+      - name: Build application
         uses: appleboy/ssh-action@v0.1.5
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -18,10 +31,16 @@ jobs:
           command_timeout: 15m
           script: |
             cd /var/www/odet-nadezhdu
-            git pull origin ruvds
-            # Use npm ci with cache and parallel builds
-            npm ci --prefer-offline --no-audit
-            # Set Node.js memory limit and enable parallel builds
-            NODE_OPTIONS="--max-old-space-size=4096"
-            npm run build
+            NODE_OPTIONS="--max-old-space-size=4096" npm run build
+      
+      - name: Restart application
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_PORT }}
+          timeout: 2m
+          script: |
+            cd /var/www/odet-nadezhdu
             pm2 restart odet-nadezhdu
