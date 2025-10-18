@@ -78,6 +78,18 @@
   const route = useRoute();
   const uri = route.params.uri.join('/');
   const config = useRuntimeConfig();
+  
+  // Save referrer if coming from a category page
+  onMounted(() => {
+    if (process.client) {
+      const referrer = document.referrer;
+      if (referrer && referrer.includes('/categories/')) {
+        sessionStorage.setItem('referrer', new URL(referrer).pathname + new URL(referrer).search);
+        console.log('Saved referrer from product page:', new URL(referrer).pathname + new URL(referrer).search);
+      }
+    }
+  });
+  
   const {data, pending, refresh, error} = await useFetch(config.public.wordpressUrl, {
      method: 'get',
      query: {

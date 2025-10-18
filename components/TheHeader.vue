@@ -85,7 +85,10 @@
             const fromFrontpage = sessionStorage.getItem('fromFrontpage');
             const selectedBrand = sessionStorage.getItem('selectedBrand');
             
-            if(isHomePage.value === 'true') {
+            console.log('Current referrer in sessionStorage:', referrer);
+            console.log('Current route path:', route.path);
+            
+            if(isHomePage.value) {
                 return '/';
             }
             
@@ -106,7 +109,8 @@
             }
             
             if (referrer && route.path.startsWith('/')) {
-                sessionStorage.removeItem('referrer');
+                // Don't remove referrer until user actually navigates
+                // sessionStorage.removeItem('referrer');
                 
                 if (referrer.includes('/search') && !route.path.startsWith('/search')) {
                     return referrer;

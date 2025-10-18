@@ -55,6 +55,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useFavoritesStore } from '~/store/favorites';
+import { useRoute } from 'vue-router';
 
 const props = defineProps({
   post: {
@@ -63,6 +64,7 @@ const props = defineProps({
   }
 });
 
+const route = useRoute();
 const favoritesStore = useFavoritesStore();
 
 // Check if this product is in favorites
@@ -76,10 +78,17 @@ const toggleFavorite = (event) => {
   favoritesStore.toggleFavorite(props.post);
 };
 
-// Function to save scroll position when clicking on a product
+// Function to save scroll position and referrer when clicking on a product
 const saveScrollPosition = () => {
-  const scrollPosition = window.scrollY || window.pageYOffset;
-  console.log('Saving scroll position from Post component:', scrollPosition);
-  sessionStorage.setItem('lastScrollPosition', scrollPosition.toString());
+  if (process.client) {
+    // Save scroll position
+    const scrollPosition = window.scrollY || window.pageYOffset;
+    console.log('Saving scroll position from Post component:', scrollPosition);
+    sessionStorage.setItem('lastScrollPosition', scrollPosition.toString());
+    
+    // Save current route as referrer
+    sessionStorage.setItem('referrer', route.fullPath);
+    console.log('Saving referrer in Post component:', route.fullPath);
+  }
 };
 </script>
