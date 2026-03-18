@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devServer: {
-    port: 3001,
+    port: 3002,
   },
   compatibilityDate: '2024-04-03',
   devtools: { enabled: true },
@@ -13,7 +13,7 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: 'ru'
       },
-      script: [{ src: 'https://telegram.org/js/telegram-web-app.js' }],
+    //  script: [{ src: 'https://telegram.org/js/telegram-web-app.js' }],
     },
   },
   modules: [

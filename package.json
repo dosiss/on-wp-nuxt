@@ -17,8 +17,7 @@
     "nuxt": "^3.12.4",
     "nuxt-swiper": "^1.2.2",
     "pinia": "^2.2.2",
-    "vue": "latest",
-    "vue-tg": "^0.8.0"
+    "vue": "latest"
   },
   "devDependencies": {
     "simple-analytics-vue": "^3.0.2"

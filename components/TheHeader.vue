@@ -1,17 +1,11 @@
 <template>
-    <header className="fixed z-10 flex justify-between w-full p-4 h-85px top-0 mx-auto bg-slate-200">
+    <header className="fixed z-10 flex justify-between w-full p-4 h-85px top-0 mx-auto bg-transparent">
         <!-- Use dynamic link for back navigation -->
-        <NuxtLink :to="backLink">
-            <!-- Show back arrow on non-frontpage routes -->
-            <div v-if="!isHomePage" class="flex items-center">
-                <svg class="w-6 h-6 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M19 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span class="text-2xl">Назад</span>
+        <NuxtLink :to="backLink" class="block transition-opacity duration-300" :class="{ 'opacity-100': isLogoVisible, 'opacity-0': !isLogoVisible }">
+            <div class="flex items-center">
+                <img src="/on_site-logo.avif" class="w-[50px] h-auto" alt="Logo"/>
+                <img src="/on_site-tagline.png" class="h-[13px] md:h-[20px] w-auto ml-3" alt="Одеть Надежду" />              
             </div>
-            <!-- Show Каталог on frontpage -->
-            <h1 v-else className="text-2xl">Каталог</h1>
         </NuxtLink>
         <div class="flex items-center">
             <!-- Search Icon -->
@@ -61,6 +55,11 @@
     import { useFavoritesStore } from '../store/favorites'
     import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
     import { useRouter, useRoute } from 'vue-router'
+
+    const windowWidth = ref(0);
+    const updateWindowWidth = () => {
+    windowWidth.value = window.innerWidth;
+    };
     
     //get stores
     const data = useCartStore();
@@ -77,6 +76,28 @@
     const isHomePage = computed(() => {
         return route.path === '/' || route.path === '';
     });
+
+    const isLogoVisible = ref(true);
+    const lastScrollPosition = ref(0);
+
+    // Function to handle scroll events
+    const handleScroll = () => {
+    if (!process.client) return;
+    
+    const currentScrollPosition = window.scrollY;
+    
+    // Determine scroll direction and update visibility
+    if (currentScrollPosition < 50) {
+        // Always show at top of page
+        isLogoVisible.value = true;
+    } else {
+        // Scrolling down - hide header
+        isLogoVisible.value = false;
+    }
+    
+    // Update last position
+    lastScrollPosition.value = currentScrollPosition;
+    };
  
     // Compute the back link based on referrer or default to homepage
     const backLink = computed(() => {
@@ -156,6 +177,13 @@
     
     // Add navigation guards to save scroll position when leaving homepage
     onMounted(() => {
+
+        // Add scroll event listener
+        window.addEventListener('scroll', handleScroll, { passive: true });
+
+        updateWindowWidth();
+        window.addEventListener('resize', updateWindowWidth);
+
         if (isHomePage.value) {
             // Add event listeners to all product links to save scroll position
             const productLinks = document.querySelectorAll('a[href^="/"]');
@@ -178,6 +206,12 @@
                     link.removeEventListener('click', saveScrollPosition);
                 });
             });
+        }
+    });
+
+    onUnmounted(() => {
+        if (process.client) {
+            window.removeEventListener('resize', updateWindowWidth);
         }
     });
 </script>

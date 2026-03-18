@@ -2,19 +2,19 @@
 import { useRoute } from 'vue-router';
 import Cart from '~/components/Cart.vue';
 import { useCartStore } from '../store/cart';
-import { MainButton, useWebAppPopup, useWebApp } from 'vue-tg';
+// import { MainButton, useWebAppPopup, useWebApp } from 'vue-tg';
 import { ref } from 'vue';
 
 // Import required utilities
 const route = useRoute();
 const data = useCartStore();
-const { showAlert } = useWebAppPopup();
-const { initDataUnsafe } = useWebApp(); // useWebApp function to access WebApp and initDataUnsafe
+// const { showAlert } = useWebAppPopup();
+// const { initDataUnsafe } = useWebApp(); // useWebApp function to access WebApp and initDataUnsafe
 const config = useRuntimeConfig();
 const isProcessing = ref(false);
 
 // Extract user information from initDataUnsafe and make it available to the template
-const userName = ref(initDataUnsafe.user?.username);
+// const userName = ref(initDataUnsafe.user?.username);
 
 async function sendOrder() {
   if (isProcessing.value) return;
@@ -22,7 +22,7 @@ async function sendOrder() {
   
   try {
     // Extract user information from initDataUnsafe
-    const userId = initDataUnsafe.user?.id;
+    // const userId = initDataUnsafe.user?.id;
     
     // Prepare cart data with product URLs
     const cartItems = data.getCartItems.map(item => {
@@ -94,7 +94,7 @@ async function sendOrder() {
       Пожалуйста, пришлите скриншот этой страницы с вашим заказом в телеграм <a href="https://t.me/@maria_shumakova" class="text-blue-500 underline">@maria_shumakova</a>
     </div>
     <ClientOnly>
-      <MainButton text="Заказать" @click="sendOrder" :disabled="isProcessing" />
+      <button text="Заказать" @click="sendOrder" :disabled="isProcessing"></button>
     </ClientOnly>
   </div>
 </template>
