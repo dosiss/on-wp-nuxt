@@ -4,7 +4,7 @@
     
     <div class="bg-grey-100 flex">
       <!-- Left Sidebar for Child Categories (>= 850px) -->
-      <div v-if="showLargeScreenLayout && childCategories.length > 0" class="w-1/5 bg-white p-4 pt-20 border-r min-h-screen">
+      <div v-if="showLargeScreenLayout && childCategories.length > 0" class="w-1/5 bg-white p-4 pt-[140px] min-h-screen">
         <ul>
           <li v-for="childCat in childCategories" :key="childCat.slug" class="mb-2">
             <a 
@@ -23,7 +23,7 @@
               :class="{ 'font-bold text-primary': !selectedChildCategory }"
               class="hover:text-primary"
             >
-              Всё из категории {{ displayCategoryName }}
+              Всё из категории {{ parentCategoryName }}
             </a>
           </li>
         </ul>
@@ -154,6 +154,11 @@ const displayCategoryName = computed(() => {
 
 const sortedPosts = computed(() => {
   return allPosts.value;
+});
+
+const parentCategoryName = computed(() => {
+  const mainCat = allCategoriesData.value?.find(cat => cat.slug === slug);
+  return mainCat?.parent?.node?.name || mainCat?.name || slug;
 });
 
 const postsDisplayState = computed(() => {
