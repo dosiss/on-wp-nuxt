@@ -33,10 +33,11 @@ export default defineEventHandler(async (event) => {
     
     // Send email
     const info = await transporter.sendMail({
-      from: '"odet_nadezhdu" <nirahk@ya.ru>',
-      to: 'bcoziworthit@gmail.com', 
-      cc: 'alexander.kharin@gmail.com',
-      subject: `Новый заказ от ${userName || userId || 'пользователя'}`,
+      from: '"odet_nadezhdu web" <nirahk@ya.ru>',
+      // to: 'bcoziworthit@gmail.com', 
+      to: 'alexander.kharin@gmail.com', 
+      // cc: 'alexander.kharin@gmail.com',
+      subject: `Новый заказ с сайта`,
       text: orderSummary,
     });
     
