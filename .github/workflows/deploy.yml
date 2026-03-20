@@ -17,6 +17,7 @@ jobs:
           timeout: 5m
           script: |
             cd /var/www/on-webshop
+            git checkout ruvds-webshop
             git pull origin ruvds-webshop
             npm ci --prefer-offline --no-audit
       
@@ -43,4 +44,6 @@ jobs:
           timeout: 2m
           script: |
             cd /var/www/on-webshop
-            pm2 restart on-webshop
+            # Restart if exists, start if not
+            pm2 describe on-webshop > /dev/null 2>&1 && pm2 restart on-webshop || PORT=3001 pm2 start .output/server/index.mjs --name on-webshop
+            pm2 save

@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer';
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event);
-    const { userId, userName, cart, totalPrice, orderDate } = body;
+    const { telegramNickname, phoneNumber, email, cart, totalPrice, orderDate } = body;
     
     // Create a formatted order summary for the email
     const orderItems = cart.map(item => 
@@ -11,8 +11,13 @@ export default defineEventHandler(async (event) => {
     ).join('\n\n');
     
     const orderSummary = `
-      Новый заказ от пользователя: ${userName || 'Неизвестно'} (${userId || 'ID не указан'})
+      Новый заказ!
       Дата заказа: ${new Date(orderDate).toLocaleString('ru-RU')}
+      
+      Контактные данные:
+      Telegram: ${telegramNickname || 'Не указан'}
+      Телефон: ${phoneNumber || 'Не указан'}
+      Email: ${email || 'Не указан'}
       
       Товары:
       ${orderItems}
@@ -34,10 +39,10 @@ export default defineEventHandler(async (event) => {
     // Send email
     const info = await transporter.sendMail({
       from: '"odet_nadezhdu web" <nirahk@ya.ru>',
-      // to: 'bcoziworthit@gmail.com', 
-      to: 'alexander.kharin@gmail.com', 
-      // cc: 'alexander.kharin@gmail.com',
-      subject: `Новый заказ с сайта`,
+      to: 'bcoziworthit@gmail.com', 
+      // to: 'alexander.kharin@gmail.com', 
+      cc: 'alexander.kharin@gmail.com',
+      subject: `Новый заказ с сайта odetnadezhdu.ru`,
       text: orderSummary,
     });
     
