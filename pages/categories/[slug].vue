@@ -161,6 +161,15 @@ const parentCategoryName = computed(() => {
   return mainCat?.parent?.node?.name || mainCat?.name || slug;
 });
 
+useHead({
+  title: computed(() => `${displayCategoryName.value} - магазинОдеть Надежду`),
+  meta: [
+    { name: 'description', content: computed(() => `Просмотрите товары в категории ${displayCategoryName.value} в магазине Одеть Надежду.`) },
+    { property: 'og:title', content: computed(() => `${displayCategoryName.value} - Одеть Надежду`) },
+    { property: 'og:image', content: '/on_site-logo.avif' }
+  ]
+})
+
 const postsDisplayState = computed(() => {
   if (loading.value || initialPostsPending.value) {
     return 'loading';

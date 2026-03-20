@@ -9,6 +9,16 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 const route = useRoute();
 const data = useCartStore();
 
+useHead({
+  title: 'Корзина - Одеть Надежду',
+  meta: [
+    { name: 'description', content: 'Оформить заказ в интернет-магазине Одеть Надежду.' },
+    { property: 'og:title', content: 'Корзина - Одеть Надежду' },
+    { property: 'og:description', content: 'Оформите заказ на ваши избранные товары.' },
+    { property: 'og:image', content: '/on_site-logo.avif' }
+  ]
+})
+
 const windowWidth = ref(0);
 const updateWindowWidth = () => {
   windowWidth.value = window.innerWidth;
@@ -210,7 +220,7 @@ onBeforeUnmount(() => {
             </div>
             <form v-else @submit.prevent="submitOrderForm" class="mt-4">
               <div class="mb-4">
-                <label for="telegram" class="block text-sm font-medium text-gray-700 text-left">Telegram Nickname</label>
+                <label for="telegram" class="block text-sm font-medium text-gray-700 text-left">Ник в Telegram</label>
                 <input 
                   type="text" 
                   id="telegram" 
@@ -222,7 +232,7 @@ onBeforeUnmount(() => {
                 <p v-if="telegramNicknameError" class="mt-1 text-sm text-red-600 text-left">{{ telegramNicknameError }}</p>
               </div>
               <div class="mb-4">
-                <label for="phone" class="block text-sm font-medium text-gray-700 text-left">Phone Number</label>
+                <label for="phone" class="block text-sm font-medium text-gray-700 text-left">Телефон</label>
                 <input 
                   type="tel" 
                   id="phone" 

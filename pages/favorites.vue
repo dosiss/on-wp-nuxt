@@ -41,6 +41,16 @@ import Post from '~/components/Post.vue';
 
 const favoritesStore = useFavoritesStore();
 
+useHead({
+  title: 'Избранное - Одеть Надежду',
+  meta: [
+    { name: 'description', content: 'Ваш список избранных товаров в магазине Одеть Надежду.' },
+    { property: 'og:title', content: 'Избранное - Одеть Надежду' },
+    { property: 'og:description', content: 'Ваш список избранных товаров.' },
+    { property: 'og:image', content: '/on_site-logo.avif' }
+  ]
+})
+
 // Get all favorites
 const favorites = computed(() => {
   return favoritesStore.getFavorites;

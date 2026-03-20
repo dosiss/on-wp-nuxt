@@ -61,6 +61,16 @@ import SortDropdown from '~/components/SortDropdown.vue';
 const route = useRoute();
 const config = useRuntimeConfig();
 const searchQuery = computed(() => route.query.q || '');
+
+useHead({
+  title: computed(() => `Поиск: ${searchQuery.value} - Одеть Надежду`),
+  meta: [
+    { name: 'description', content: computed(() => `Результаты поиска товаров по запросу: ${searchQuery.value}`) },
+    { property: 'og:title', content: computed(() => `Поиск: ${searchQuery.value} - Одеть Надежду`) },
+    { property: 'og:image', content: '/on_site-logo.avif' }
+  ]
+})
+
 const sortBy = ref('date'); // Default sorting by date
 const loading = ref(false);
 const searchResults = ref([]);

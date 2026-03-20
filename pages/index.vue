@@ -10,6 +10,17 @@ const updateWindowWidth = () => {
   windowWidth.value = window.innerWidth;
 };
 
+useHead({
+  title: 'Одеть Надежду - Интернет-магазин брендовой одежды',
+  meta: [
+    { name: 'description', content: 'Винтажные, б/у и новые туристические, повседневные, спортивные вещи известных европейских и американских брендов. Возим из Европы, продаём в Москве.' },
+    { property: 'og:title', content: 'Одеть Надежду - Интернет-магазин брендовой одежды' },
+    { property: 'og:description', content: 'Винтажные, б/у и новые туристические, повседневные, спортивные вещи известных европейских и американских брендов. Возим из Европы, продаём в Москве.' },
+    { property: 'og:image', content: '/on_site-logo.avif' },
+    { name: 'twitter:card', content: 'summary_large_image' }
+  ]
+})
+
 const config = useRuntimeConfig();
 const sortBy = ref('date'); // Default sorting by date
 const loading = ref(false);

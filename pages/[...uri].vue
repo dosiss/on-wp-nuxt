@@ -257,8 +257,27 @@ const route = useRoute();
      }
   })
   
+  const productDescription = computed(() => {
+    if (!data.value?.productData?.productDescription) return 'Интернет-магазин Одеть Надежду';
+    // Strip HTML and get first sentence
+    const plainText = data.value.productData.productDescription.replace(/<[^>]*>/g, '');
+    const firstSentence = plainText.split(/[.!?]/)[0];
+    return firstSentence ? firstSentence + '.' : 'Описание товара Одеть Надежду';
+  });
+
+  const productOgImage = computed(() => {
+    return data.value?.productData?.productGallery?.edges?.[0]?.node?.mediaDetails?.sizes?.[0]?.sourceUrl || '/on_site-logo.avif';
+  });
+
   useHead({
-     title: data.value.title
+     title: computed(() => `${data.value?.title} - магазин Одеть Надежду`),
+     meta: [
+       { name: 'description', content: productDescription },
+       { property: 'og:title', content: computed(() => data.value?.title) },
+       { property: 'og:description', content: productDescription },
+       { property: 'og:image', content: productOgImage },
+       { name: 'twitter:card', content: 'summary_large_image' }
+     ]
   })
 
   const cartStore = useCartStore();
