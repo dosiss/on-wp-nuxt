@@ -171,13 +171,13 @@ useHead({
 })
 
 const postsDisplayState = computed(() => {
-  if (loading.value || initialPostsPending.value) {
+  if (allPosts.value && allPosts.value.length > 0) {
+    return 'hasPosts';
+  }
+  if (loading.value) {
     return 'loading';
   }
-  if (!allPosts.value || allPosts.value.length === 0) {
-    return 'noPosts';
-  }
-  return 'hasPosts';
+  return 'noPosts';
 });
 
 
