@@ -476,6 +476,11 @@ const handleBrandSelection = (brand) => {
       url.searchParams.delete('brand');
     }
     window.history.pushState({}, '', url);
+
+    // Scroll to top smoothly if on large screens (sidebar)
+    if (windowWidth.value >= 850) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 };
 
