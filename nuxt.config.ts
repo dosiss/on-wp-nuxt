@@ -14,6 +14,7 @@ export default defineNuxtConfig({
         lang: 'ru'
       },
     //  script: [{ src: 'https://telegram.org/js/telegram-web-app.js' }],
+    
     },
   },
   modules: [
