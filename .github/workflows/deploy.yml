@@ -7,33 +7,31 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Update code
-        uses: appleboy/ssh-action@v0.1.5
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          password: ${{ secrets.VPS_PASSWORD }}
-          port: ${{ secrets.VPS_PORT }}
-          timeout: 10m
-          script: |
-            cd /var/www/on-webshop
-            git checkout ruvds-webshop
-            git pull origin ruvds-webshop
-            npm ci --prefer-offline --no-audit
-      
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Build application
-        uses: appleboy/ssh-action@v0.1.5
+        run: NODE_OPTIONS="--max-old-space-size=4096" npm run build
+
+      - name: Transfer build to VPS
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT }}
-          timeout: 30m
-          command_timeout: 30m
-          script: |
-            cd /var/www/on-webshop
-            NODE_OPTIONS="--max-old-space-size=4096" npm run build
-      
+          source: ".output/"
+          target: "/var/www/on-webshop"
+
       - name: Restart application
         uses: appleboy/ssh-action@v0.1.5
         with:
@@ -41,7 +39,6 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT }}
-          timeout: 2m
           script: |
             cd /var/www/on-webshop
             # Restart if exists, start if not
