@@ -398,29 +398,29 @@ const { data, pending, error } = await useFetch(config.public.wordpressUrl, {
   },
   transform(data) {
     try {
-      console.log('Initial data received:', data);
+     // console.log('Initial data received:', data);
       
       if (data?.data?.posts?.nodes) {
         debug.value.initialDataLoaded = true;
-        console.log('Initial posts loaded:', data.data.posts.nodes.length);
+        // console.log('Initial posts loaded:', data.data.posts.nodes.length);
         
         // Store the end cursor for pagination - add more detailed logging
-        console.log('PageInfo from response:', data?.data?.posts?.pageInfo);
+        //console.log('PageInfo from response:', data?.data?.posts?.pageInfo);
         
         if (data?.data?.posts?.pageInfo?.endCursor) {
           endCursor.value = data.data.posts.pageInfo.endCursor;
           hasMorePosts.value = data.data.posts.pageInfo.hasNextPage;
-          console.log('End cursor set to:', endCursor.value, 'Has next page:', hasMorePosts.value);
+          // console.log('End cursor set to:', endCursor.value, 'Has next page:', hasMorePosts.value);
         } else {
-          console.error('No endCursor found in pageInfo:', data?.data?.posts?.pageInfo);
+          // console.error('No endCursor found in pageInfo:', data?.data?.posts?.pageInfo);
           debug.value.error = 'No endCursor found in pageInfo';
           
           // Set a default cursor if none is found (this is a workaround)
           endCursor.value = "YXJyYXljb25uZWN0aW9uOjEwNzk="; 
-          console.log('Using default cursor as fallback:', endCursor.value);
+          // console.log('Using default cursor as fallback:', endCursor.value);
         }
       } else {
-        console.error('No posts found in initial data');
+        //console.error('No posts found in initial data');
         debug.value.error = 'No posts found in initial data';
       }
       
@@ -429,7 +429,7 @@ const { data, pending, error } = await useFetch(config.public.wordpressUrl, {
         categories: data?.data?.categories?.nodes || [],
       };
     } catch (error) {
-      console.error('Error in transform:', error);
+      // console.error('Error in transform:', error);
       debug.value.error = error.message;
       return { posts: [], categories: [] };
     }
@@ -441,7 +441,7 @@ const { data, pending, error } = await useFetch(config.public.wordpressUrl, {
 watch(data, (newData) => {
 // Only update allPosts from data if no brand is selected
 if (!selectedBrand.value && newData?.posts && newData.posts.length > 0) {
-console.log('Setting allPosts from data watch:', newData.posts.length);
+// console.log('Setting allPosts from data watch:', newData.posts.length);
 allPosts.value = [...newData.posts];
 }
 }, { immediate: true });
@@ -449,7 +449,7 @@ allPosts.value = [...newData.posts];
 // Function to load more posts with cursor-based pagination
 const loadMorePosts = async () => {
   if (loading.value || isLoadingMore.value || !hasMorePosts.value || !endCursor.value) {
-    console.log('Skipping loadMorePosts:', { 
+     console.log('Skipping loadMorePosts:', { 
       loading: loading.value,
       isLoadingMore: isLoadingMore.value,
       hasMorePosts: hasMorePosts.value, 
@@ -491,7 +491,7 @@ const sortOptions = [
 
 // Update sortedPosts to use allPosts directly
 const sortedPosts = computed(() => {
-  console.log('Computing sorted posts, count:', allPosts.value.length);
+  // console.log('Computing sorted posts, count:', allPosts.value.length);
   
   if (!allPosts.value || allPosts.value.length === 0) {
     console.log('No posts to sort');

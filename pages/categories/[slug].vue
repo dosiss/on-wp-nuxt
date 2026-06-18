@@ -127,7 +127,7 @@ const { data: allCategoriesData } = await useFetch(config.public.wordpressUrl, {
     `
   },
   transform: (data) => {
-    console.log('allCategoriesData.value in transform:', data?.data?.categories?.nodes);
+    // console.log('allCategoriesData.value in transform:', data?.data?.categories?.nodes);
     return data?.data?.categories?.nodes || [];
   }
 });
@@ -139,7 +139,7 @@ const childCategories = computed(() => {
 
   return allCategoriesData.value.filter(cat => cat.parent?.node?.slug === currentCategory.slug);
 });
-console.log('childCategories computed:', childCategories.value); // Log childCategories here
+// console.log('childCategories computed:', childCategories.value); // Log childCategories here
 
 const showLargeScreenLayout = computed(() => isClient.value && windowWidth.value >= 850);
 
@@ -204,7 +204,7 @@ const _fetchPosts = async (currentSlug, childCatSlug, afterCursor = null) => {
       });
     }
   }
-  console.log('_fetchPosts: categoriesToQuery', categoriesToQuery);
+  // console.log('_fetchPosts: categoriesToQuery', categoriesToQuery);
 
   try {
     const response = await $fetch(config.public.wordpressUrl, {
@@ -264,7 +264,7 @@ const _fetchPosts = async (currentSlug, childCatSlug, afterCursor = null) => {
       }
     });
 
-    console.log('_fetchPosts: response data', response.data);
+    // console.log('_fetchPosts: response data', response.data);
     
     return {
       posts: response.data?.posts?.nodes || [],

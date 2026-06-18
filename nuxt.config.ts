@@ -4,7 +4,7 @@ export default defineNuxtConfig({
     port: 3002,
   },
   compatibilityDate: '2024-04-03',
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   // alias: {
   //   pinia: "/node_modules/@pinia/nuxt/node_modules/pinia/dist/pinia.mjs"
   // },
@@ -14,18 +14,18 @@ export default defineNuxtConfig({
         lang: 'ru'
       },
     //  script: [{ src: 'https://telegram.org/js/telegram-web-app.js' }],
-    
+
     },
   },
   modules: [
-      '@nuxt/devtools',
+    //  '@nuxt/devtools',
       '@nuxtjs/tailwindcss',
       'nuxt-swiper',
       '@pinia/nuxt'
   ],
   runtimeConfig: {
     public: {
-        wordpressUrl: 'https://s03.devdog.xyz/graphql'
+        wordpressUrl: 'https://back.odetnadezhdu.ru/graphql'
     }
   },
   swiper: {

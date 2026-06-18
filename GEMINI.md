@@ -97,6 +97,6 @@ npm run postinstall
 # Development Conventions
 
 *   **Project Structure:** Follows standard Nuxt 3 directory conventions (`pages`, `components`, `store`, `server`, `public`, `plugins`).
-*   **API Communication:** The application interacts with a WordPress backend at the URL specified in `runtimeConfig.public.wordpressUrl` (e.g., `https://s03.devdog.xyz/graphql`).
+*   **API Communication:** The application interacts with a WordPress backend at the URL specified in `runtimeConfig.public.wordpressUrl` (e.g., `https://back.odetnadezhdu.ru/graphql`).
 
 *   **Language & Configuration:** TypeScript is used throughout the codebase, with Nuxt configuration managed in `nuxt.config.ts`.
