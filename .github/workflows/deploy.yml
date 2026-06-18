@@ -14,7 +14,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT }}
-          timeout: 5m
+          timeout: 10m
           script: |
             cd /var/www/on-webshop
             git checkout ruvds-webshop
@@ -28,8 +28,8 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT }}
-          timeout: 15m
-          command_timeout: 15m
+          timeout: 30m
+          command_timeout: 30m
           script: |
             cd /var/www/on-webshop
             NODE_OPTIONS="--max-old-space-size=4096" npm run build
