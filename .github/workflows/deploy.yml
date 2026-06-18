@@ -41,6 +41,7 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           script: |
             cd /var/www/on-webshop
-            # Restart if exists, start if not
-            pm2 describe on-webshop > /dev/null 2>&1 && pm2 restart on-webshop || PORT=3001 pm2 start .output/server/index.mjs --name on-webshop
+            # Delete the old process to ensure a clean start with new environment/paths
+            pm2 delete on-webshop || true
+            PORT=3001 HOST=0.0.0.0 pm2 start .output/server/index.mjs --name on-webshop
             pm2 save
