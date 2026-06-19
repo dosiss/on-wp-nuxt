@@ -173,7 +173,7 @@ const fetchPosts = async () => {
               }
             }
           }
-          categories(first: 40) {
+          categories(first: 50) {
             nodes {
               name
               slug
@@ -268,7 +268,7 @@ const fetchPosts = async () => {
               }
             }
           }
-          categories(first: 40) {
+          categories(first: 50) {
             nodes {
               name
               slug
@@ -381,7 +381,7 @@ const { data, pending, error } = await useFetch(config.public.wordpressUrl, {
             }
           }
         }
-        categories(first: 40) {
+        categories(first: 50) {
           nodes {
             name
             slug
